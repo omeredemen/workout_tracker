@@ -14,13 +14,15 @@ Next.js 16 differs from older versions — check `node_modules/next/dist/docs/` 
 
 pnpm is run through corepack (not installed globally): use `corepack pnpm <cmd>`, or run `corepack enable` once to get a plain `pnpm`.
 
-| Command                             | What it does                                          |
-| ----------------------------------- | ----------------------------------------------------- |
-| `pnpm dev`                          | dev server                                            |
-| `pnpm test`                         | Vitest, single run (`pnpm test:watch` for watch mode) |
-| `pnpm typecheck`                    | `next typegen` + `tsc --noEmit`                       |
-| `pnpm lint`                         | ESLint                                                |
-| `pnpm format` / `pnpm format:check` | Prettier (with Tailwind class sorting)                |
+| Command                             | What it does                                                       |
+| ----------------------------------- | ------------------------------------------------------------------ |
+| `pnpm dev`                          | dev server                                                         |
+| `pnpm dev:phone`                    | dev server reachable from a phone at `http://<laptop LAN IP>:3000` |
+| `pnpm test`                         | Vitest, single run (`pnpm test:watch` for watch mode)              |
+| `pnpm test:e2e`                     | Playwright smoke tests (installed Chrome; own dev server on :3100) |
+| `pnpm typecheck`                    | `next typegen` + `tsc --noEmit`                                    |
+| `pnpm lint`                         | ESLint                                                             |
+| `pnpm format` / `pnpm format:check` | Prettier (with Tailwind class sorting)                             |
 
 A milestone is done only when `test`, `typecheck` and `lint` are clean. Commit after each milestone.
 
@@ -53,6 +55,15 @@ A milestone is done only when `test`, `typecheck` and `lint` are clean. Commit a
 - Dates are `IsoDate` strings (`yyyy-MM-dd`, local time); convert only through `src/domain/dates.ts`.
 - Pass `withProgramExercises(library, program)` wherever a program's own extra exercises must be visible (`resolveWorkout`, swap options).
 - Types come from the Zod schemas (`z.output`), in `src/domain/types.ts`. Test fixtures live in `src/domain/__tests__/fixtures.ts`.
+
+## App layer (M2)
+
+- Data lives in localStorage, so every page wraps its view in `<ClientOnly>` (in the page, not the root layout, or Next's instant-navigation validation drops the segment). Nothing may read the clock, storage or `crypto.randomUUID` during prerender.
+- `/workout/[date]` reads its param with `useParams` inside `<Suspense>` (required by Cache Components).
+- Read data with `useRepoQuery(useCallback(...))`; it re-runs on any repository change. `useActiveProgram()` gives the enrollment, program, merged library and schedule.
+- Generate ids with `newId()` (`src/data/ids.ts`), never `crypto.randomUUID()`: the dev server opened over the LAN is not a secure context.
+- Saves are upserts; sessions and set logs upsert on their natural keys, so double taps can't create duplicates.
+- Changing the start date creates a new enrollment; old logs stay in history.
 
 ## Conventions
 

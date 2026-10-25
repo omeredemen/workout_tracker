@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
+import { BottomNav, NavBar } from "@/components/nav/BottomNav";
+import { RepositoryProvider } from "@/data/RepositoryProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -22,8 +25,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: light)", color: "#f4f4f5" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
   ],
 };
 
@@ -33,7 +36,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <RepositoryProvider>{children}</RepositoryProvider>
+        <Suspense fallback={<NavBar />}>
+          <BottomNav />
+        </Suspense>
+      </body>
     </html>
   );
 }

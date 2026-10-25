@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Lets the dev server be opened from a phone on the local network.
+  allowedDevOrigins: ["192.168.*.*", "10.*.*.*", "172.*.*.*"],
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
