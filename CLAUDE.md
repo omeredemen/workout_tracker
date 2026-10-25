@@ -6,7 +6,7 @@ Mobile-first PWA: import a training program (JSON), pick a Monday start date, fo
 
 ## Stack
 
-Next.js 16 (App Router) · TypeScript strict (+ `noUncheckedIndexedAccess`) · Tailwind CSS 4 · Zod 4 · date-fns 4 · Vitest · Supabase (from M4) · Serwist for the service worker (M5) · Vercel · pnpm.
+Next.js 16 (App Router) · TypeScript strict (+ `noUncheckedIndexedAccess`) · Tailwind CSS 4 · Zod 4 · date-fns 4 · Vitest · Supabase (from M4) · hand-written service worker (`public/sw.js`) · Vercel · pnpm.
 
 Next.js 16 differs from older versions — check `node_modules/next/dist/docs/` before using an API you're unsure of. `next.config.ts` enables `cacheComponents` and `partialPrefetching`; the offline guide (`01-app/02-guides/offline-support.md`) is relevant for M5.
 
@@ -59,7 +59,7 @@ A milestone is done only when `test`, `typecheck` and `lint` are clean. Commit a
 ## App layer (M2)
 
 - Data lives in localStorage, so every page wraps its view in `<ClientOnly>` (in the page, not the root layout, or Next's instant-navigation validation drops the segment). Nothing may read the clock, storage or `crypto.randomUUID` during prerender.
-- `/workout/[date]` reads its param with `useParams` inside `<Suspense>` (required by Cache Components).
+- The workout page is `/workout?date=yyyy-MM-dd` (build links with `workoutHref`), read with `useSearchParams` inside `<Suspense>`. Keeping it a static route (not `/workout/[date]`) lets the service worker serve it offline for any date. Every route should stay static (○ in `next build`).
 - Read data with `useRepoQuery(useCallback(...))`; it re-runs on any repository change. `useActiveProgram()` gives the enrollment, program, merged library and schedule.
 - Generate ids with `newId()` (`src/data/ids.ts`), never `crypto.randomUUID()`: the dev server opened over the LAN is not a secure context.
 - Saves are upserts; sessions and set logs upsert on their natural keys, so double taps can't create duplicates.
@@ -81,6 +81,12 @@ A milestone is done only when `test`, `typecheck` and `lint` are clean. Commit a
 - A device holding another account's data must be cleared before syncing (Settings shows a "Different account" prompt).
 - New synced columns: add them to the migration, `SYNC_TABLES` (`src/data/sync/tables.ts`) and the record type.
 - Tests: `supabase/tests/rls.test.ts` runs migrations + RLS on PGlite; `e2e/fake-supabase.mts` serves auth + REST on PGlite for Playwright (codes are always `123456`).
+
+## PWA (M5)
+
+- `src/app/manifest.ts`, icons in `public/icons/` and `src/app/apple-icon.png` / `icon.svg` (regenerate with `node scripts/generate-icons.mjs` from `scripts/icon.svg`).
+- `public/sw.js` precaches every page in its `PAGES` list (add new routes there) and their static assets at install; pages are network-first with cache fallback. Router (RSC) requests are never cached: offline they get a 503 so Next.js falls back to a full page load, which the cache serves. It registers only in production (`ServiceWorker` component), versioned by `NEXT_PUBLIC_APP_VERSION` (commit SHA on Vercel).
+- `pnpm test:e2e` has two projects: `app` (dev server :3100) and `pwa` (production build in `.next-e2e`, :3200) for service worker and offline tests.
 
 ## Conventions
 

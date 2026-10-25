@@ -27,7 +27,7 @@ test("a full phase 3 workout: last time, RPT, rest timer, rest-pause, superset, 
   await startProgram(page);
 
   // Log a set in a past workout (week 1) so "last time" has something to show.
-  await page.goto("/workout/2026-10-19");
+  await page.goto("/workout?date=2026-10-19");
   await saveSet(page, `${LAT} set 1`, "50");
   await expect(page.getByRole("timer")).toHaveCount(0); // not live, so no rest timer
 
@@ -110,7 +110,7 @@ test("a full phase 3 workout: last time, RPT, rest timer, rest-pause, superset, 
   await expect(page.getByRole("heading", { name: "T Bar Row" })).toBeVisible();
 
   // The swap carries to next week's Upper A, where swapping again warns about mid-phase.
-  await page.goto("/workout/2026-12-21");
+  await page.goto("/workout?date=2026-12-21");
   await expect(page.getByRole("heading", { name: "T Bar Row" })).toBeVisible();
   await page.getByRole("button", { name: "Swap T Bar Row" }).click();
   await expect(page.getByRole("dialog").getByRole("alert")).toContainText(
@@ -139,7 +139,7 @@ test("cardio can be ticked on rest days, and a workout can be skipped", async ({
   await expect(page.getByRole("checkbox", { name: /Cardio/ })).toBeChecked();
 
   page.on("dialog", (d) => void d.accept());
-  await page.goto("/workout/2026-12-17");
+  await page.goto("/workout?date=2026-12-17");
   await page.getByRole("button", { name: "Skip this workout" }).click();
   await expect(page.getByText("You skipped this workout")).toBeVisible();
   await page.goto("/calendar");

@@ -49,7 +49,7 @@ test("data logged on the phone appears on the laptop, and stays private", async 
   const laptop = await newDevice(browser);
   await signIn(laptop, "me@example.com");
   await syncNow(laptop);
-  await laptop.goto("/workout/2026-10-19");
+  await laptop.goto("/workout?date=2026-10-19");
   await expect(laptop.getByLabel(`${LAT} set 1 weight in kg`)).toHaveValue(
     "52.5",
   );
@@ -62,7 +62,7 @@ test("data logged on the phone appears on the laptop, and stays private", async 
   ).toBeVisible();
   await syncNow(laptop);
   await syncNow(phone);
-  await phone.goto("/workout/2026-10-19");
+  await phone.goto("/workout?date=2026-10-19");
   await expect(phone.getByLabel(`${LAT} set 2 weight in kg`)).toHaveValue("50");
 
   // Someone else signing in on a fresh device sees none of it.

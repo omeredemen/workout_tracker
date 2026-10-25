@@ -17,6 +17,7 @@ import { statusCell, statusLabel } from "@/components/calendar/status";
 import { CardioToggle } from "./CardioToggle";
 import { ErrorMessage, Loading, Screen } from "@/components/ui/Screen";
 import { button, card } from "@/components/ui/styles";
+import { workoutHref } from "@/lib/routes";
 
 export function TodayView() {
   const active = useActiveProgram();
@@ -140,7 +141,7 @@ function TodayWithProgram({
                 </li>
               ))}
           </ul>
-          <Link href={`/workout/${today}`} className={button.primary}>
+          <Link href={workoutHref(today)} className={button.primary}>
             {status === "completed"
               ? "View workout"
               : status === "in_progress"
@@ -194,7 +195,7 @@ function WeekStrip({
         return (
           <li key={d.date} title={statusLabel[status]}>
             {d.dayKey ? (
-              <Link href={`/workout/${d.date}`} className={className}>
+              <Link href={workoutHref(d.date)} className={className}>
                 {content}
               </Link>
             ) : (

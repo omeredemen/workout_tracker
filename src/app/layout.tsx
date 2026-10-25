@@ -5,6 +5,8 @@ import { BottomNav, NavBar } from "@/components/nav/BottomNav";
 import { RepositoryProvider } from "@/data/RepositoryProvider";
 import { SyncProvider } from "@/data/sync/SyncProvider";
 import { ClientOnly } from "@/components/ui/ClientOnly";
+import { OfflineBanner } from "@/components/pwa/OfflineBanner";
+import { ServiceWorker } from "@/components/pwa/ServiceWorker";
 import { RestTimerBar } from "@/components/workout/RestTimerBar";
 import "./globals.css";
 
@@ -21,6 +23,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Workout Tracker",
   description: "Import a training program, follow the calendar, log every set.",
+  applicationName: "Workout Tracker",
+  appleWebApp: {
+    capable: true,
+    title: "Workouts",
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export const viewport: Viewport = {
@@ -42,12 +50,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col">
         <RepositoryProvider>
           <SyncProvider>
+            <ClientOnly>
+              <OfflineBanner />
+            </ClientOnly>
             {children}
             <ClientOnly>
               <RestTimerBar />
             </ClientOnly>
           </SyncProvider>
         </RepositoryProvider>
+        <ServiceWorker />
         <Suspense fallback={<NavBar />}>
           <BottomNav />
         </Suspense>

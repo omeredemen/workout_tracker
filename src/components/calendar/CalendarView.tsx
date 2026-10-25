@@ -24,6 +24,7 @@ import type { Repository } from "@/data/repository";
 import { ErrorMessage, Loading, Screen } from "@/components/ui/Screen";
 import { button, card } from "@/components/ui/styles";
 import { statusCell, statusLabel } from "./status";
+import { workoutHref } from "@/lib/routes";
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const LEGEND: DayStatus[] = ["completed", "in_progress", "missed", "planned"];
@@ -149,7 +150,7 @@ function ProgramCalendar({ active }: { active: ActiveProgram }) {
                   return day?.dayKey ? (
                     <Link
                       key={iso}
-                      href={`/workout/${iso}`}
+                      href={workoutHref(iso)}
                       className={className}
                       aria-label={label}
                     >

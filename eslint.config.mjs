@@ -36,6 +36,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Production build used by the PWA end-to-end tests.
+    ".next-e2e/**",
   ]),
 ]);
 

@@ -27,3 +27,16 @@ Without Supabase settings the app runs fully on the device (localStorage). See `
 6. Restart `pnpm dev`, open Settings and sign in. Anything already logged on the device is uploaded on first sign-in.
 
 Row level security restricts every table to its owner; `pnpm test` runs the migrations and RLS checks against an embedded Postgres (PGlite).
+
+## Deploy (Vercel)
+
+1. Push this repository to GitHub and import it at [vercel.com/new](https://vercel.com/new) (framework: Next.js; the defaults are right — Vercel detects pnpm from `pnpm-lock.yaml`).
+2. In the Vercel project settings → Environment Variables, add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Production and Preview), then redeploy.
+3. In Supabase → Authentication → URL configuration, set the Site URL to the Vercel URL and add `https://<your-app>.vercel.app/auth/callback` to the redirect URLs.
+4. On your phone, open the Vercel URL:
+   - **iPhone (Safari):** Share → Add to Home Screen.
+   - **Android (Chrome):** menu → Install app.
+
+The service worker only runs in production builds over HTTPS (or on `localhost`). After installing, the app opens and logs workouts without a connection; queued changes sync when you're back online. Each deploy gets a new service-worker version, so the offline copy updates on the next launch.
+
+To check the production build locally: `pnpm build && pnpm start`.
