@@ -1,0 +1,762 @@
+{
+  "schemaVersion": 1,
+  "swapRules": [
+    "Only swap an exercise for another one in the same swapGroup (e.g. BB Bench Press <-> Machine Chest Press is OK, Bench Press <-> Chest Fly is not).",
+    "Change exercises rarely: ideally only when starting a phase or moving to the next phase.",
+    "Check equipment before starting a phase; if you travel often, prefer machines you can find everywhere."
+  ],
+  "equipment": {
+    "machine": "Makine (M)",
+    "dumbbell": "Dambıl (DB)",
+    "barbell": "Barbell (BB)",
+    "smith": "Smith Machine (SM)",
+    "ez_bar": "EZ Bar",
+    "cable": "Kablo / Cable",
+    "bodyweight": "Vücut ağırlığı"
+  },
+  "swapGroups": [
+    {
+      "id": "shoulder_press",
+      "name": "Shoulder press",
+      "nameTr": "Omuz – İtiş",
+      "bodyPart": "shoulders"
+    },
+    {
+      "id": "shoulder_lateral",
+      "name": "Side delts",
+      "nameTr": "Yan Omuz",
+      "bodyPart": "shoulders"
+    },
+    {
+      "id": "shoulder_rear",
+      "name": "Rear delts",
+      "nameTr": "Arka Omuz",
+      "bodyPart": "shoulders"
+    },
+    {
+      "id": "biceps",
+      "name": "Biceps",
+      "nameTr": "Biceps",
+      "bodyPart": "arms"
+    },
+    {
+      "id": "triceps",
+      "name": "Triceps",
+      "nameTr": "Triceps",
+      "bodyPart": "arms"
+    },
+    {
+      "id": "chest_upper_press",
+      "name": "Upper chest press",
+      "nameTr": "Üst Göğüs İtiş",
+      "bodyPart": "chest"
+    },
+    {
+      "id": "chest_mid_press",
+      "name": "Mid chest press",
+      "nameTr": "Orta Göğüs İtiş",
+      "bodyPart": "chest"
+    },
+    {
+      "id": "chest_isolation",
+      "name": "Chest isolation",
+      "nameTr": "Göğüs İzolasyon",
+      "bodyPart": "chest"
+    },
+    {
+      "id": "back_horizontal",
+      "name": "Horizontal pull",
+      "nameTr": "Yatay Çekiş",
+      "bodyPart": "back"
+    },
+    {
+      "id": "back_vertical",
+      "name": "Vertical pull",
+      "nameTr": "Dikey Çekiş",
+      "bodyPart": "back"
+    },
+    {
+      "id": "back_isolation",
+      "name": "Back isolation",
+      "nameTr": "Sırt İzolasyon",
+      "bodyPart": "back"
+    },
+    {
+      "id": "legs_squat",
+      "name": "Squat pattern",
+      "nameTr": "Squat",
+      "bodyPart": "legs"
+    },
+    {
+      "id": "legs_quad",
+      "name": "Quads",
+      "nameTr": "Ön Bacak",
+      "bodyPart": "legs"
+    },
+    {
+      "id": "legs_hamstring",
+      "name": "Hamstrings",
+      "nameTr": "Arka Bacak",
+      "bodyPart": "legs"
+    }
+  ],
+  "exercises": [
+    {
+      "id": "seated_db_shoulder_press",
+      "name": "Seated DB Shoulder Press",
+      "swapGroup": "shoulder_press",
+      "equipment": [
+        "dumbbell"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "machine_shoulder_press",
+      "name": "Machine Shoulder Press",
+      "swapGroup": "shoulder_press",
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "bb_overhead_press",
+      "name": "BB Overhead Press",
+      "swapGroup": "shoulder_press",
+      "equipment": [
+        "barbell"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "smith_shoulder_press",
+      "name": "Smith Machine Shoulder Press",
+      "swapGroup": "shoulder_press",
+      "equipment": [
+        "smith"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "db_lateral_raise",
+      "name": "DB Lateral Raise",
+      "swapGroup": "shoulder_lateral",
+      "equipment": [
+        "dumbbell"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "cable_lateral_raise",
+      "name": "Cable Lateral Raise",
+      "swapGroup": "shoulder_lateral",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "machine_lateral_raise",
+      "name": "Machine Lateral Raise",
+      "swapGroup": "shoulder_lateral",
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "face_pull",
+      "name": "Face Pull",
+      "swapGroup": "shoulder_rear",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "reverse_pec_deck",
+      "name": "Reverse Pec Deck",
+      "swapGroup": "shoulder_rear",
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "ez_bar_curl",
+      "name": "EZ Bar Curl",
+      "swapGroup": "biceps",
+      "equipment": [
+        "ez_bar"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "cable_curl",
+      "name": "Cable Curl",
+      "swapGroup": "biceps",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "incline_db_curl",
+      "name": "Incline DB Curl",
+      "swapGroup": "biceps",
+      "equipment": [
+        "dumbbell"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "hammer_curl",
+      "name": "Hammer Curl",
+      "swapGroup": "biceps",
+      "equipment": [
+        "dumbbell"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "preacher_curl",
+      "name": "Preacher Curl",
+      "swapGroup": "biceps",
+      "equipment": [
+        "ez_bar",
+        "machine"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "reverse_ez_bar_curl",
+      "name": "Reverse EZ Bar Curl",
+      "swapGroup": "biceps",
+      "equipment": [
+        "ez_bar"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "rope_hammer_curl",
+      "name": "Rope Hammer Curl",
+      "swapGroup": "biceps",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "rope_curl",
+      "name": "Rope Curl",
+      "swapGroup": "biceps",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": false,
+      "note": "Added from the program (not listed in the swap document)."
+    },
+    {
+      "id": "skull_crusher",
+      "name": "Skull Crusher",
+      "swapGroup": "triceps",
+      "equipment": [
+        "dumbbell",
+        "ez_bar"
+      ],
+      "inSwapDoc": true,
+      "note": "Swap document lists 'DB Skull Crusher'; the program says 'Skullcrusher'. Merged into one entry."
+    },
+    {
+      "id": "triceps_pushdown",
+      "name": "Triceps Pushdown",
+      "swapGroup": "triceps",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "rope_pushdown",
+      "name": "Rope Triceps Pushdown",
+      "swapGroup": "triceps",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true,
+      "note": "Program uses both 'Rope Pushdown' and 'Triceps Rope Pushdown' for this."
+    },
+    {
+      "id": "overhead_db_triceps_extension",
+      "name": "Overhead DB Triceps Extension",
+      "swapGroup": "triceps",
+      "equipment": [
+        "dumbbell"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "overhead_rope_triceps_extension",
+      "name": "Overhead Rope Triceps Extension",
+      "swapGroup": "triceps",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "one_arm_cable_triceps_extension",
+      "name": "One Arm Cable Triceps Extension",
+      "swapGroup": "triceps",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "triceps_cable_kickback",
+      "name": "Triceps Cable Kickback",
+      "swapGroup": "triceps",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "straight_bar_pushdown",
+      "name": "Straight Bar Pushdown",
+      "swapGroup": "triceps",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": false,
+      "note": "Added from the program (not listed in the swap document)."
+    },
+    {
+      "id": "rope_triceps_extension",
+      "name": "Rope Triceps Extension",
+      "swapGroup": "triceps",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": false,
+      "note": "Added from the program (not listed in the swap document). Unclear whether this means a pushdown or an overhead extension."
+    },
+    {
+      "id": "incline_smith_bench_press",
+      "name": "Incline Smith Bench Press",
+      "swapGroup": "chest_upper_press",
+      "equipment": [
+        "smith"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "incline_bench_press",
+      "name": "Incline Bench Press",
+      "swapGroup": "chest_upper_press",
+      "equipment": [
+        "barbell"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "incline_machine_chest_press",
+      "name": "Incline Machine Chest Press",
+      "swapGroup": "chest_upper_press",
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "incline_db_press",
+      "name": "Incline DB Press",
+      "swapGroup": "chest_upper_press",
+      "equipment": [
+        "dumbbell"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "bb_bench_press",
+      "name": "BB Bench Press",
+      "swapGroup": "chest_mid_press",
+      "equipment": [
+        "barbell"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "smith_bench_press",
+      "name": "Smith Bench Press",
+      "swapGroup": "chest_mid_press",
+      "equipment": [
+        "smith"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "flat_db_press",
+      "name": "Flat DB Press",
+      "swapGroup": "chest_mid_press",
+      "equipment": [
+        "dumbbell"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "dips",
+      "name": "Dips",
+      "swapGroup": "chest_mid_press",
+      "equipment": [
+        "bodyweight"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "machine_chest_press",
+      "name": "Machine Chest Press",
+      "swapGroup": "chest_mid_press",
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "pec_deck",
+      "name": "Machine Pec Deck (Chest Fly)",
+      "swapGroup": "chest_isolation",
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": true,
+      "note": "Swap document 'M Chest Fly' and program 'Machine Pec Deck' merged."
+    },
+    {
+      "id": "low_to_high_cable_crossover",
+      "name": "Low to High Cable Crossover",
+      "swapGroup": "chest_isolation",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "high_to_low_cable_crossover",
+      "name": "High to Low Cable Crossover",
+      "swapGroup": "chest_isolation",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "cable_crossover",
+      "name": "Cable Crossover",
+      "swapGroup": "chest_isolation",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "middle_cable_chest_fly",
+      "name": "Middle Cable Chest Fly",
+      "swapGroup": "chest_isolation",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": false,
+      "note": "Added from the program (not listed in the swap document)."
+    },
+    {
+      "id": "machine_seated_row",
+      "name": "Machine Seated Row",
+      "swapGroup": "back_horizontal",
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": true,
+      "note": "Program uses both 'Seated Row Machine' and 'Machine Row' for this."
+    },
+    {
+      "id": "db_bench_row",
+      "name": "DB Bench Row",
+      "swapGroup": "back_horizontal",
+      "equipment": [
+        "dumbbell"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "bb_row",
+      "name": "BB Row",
+      "swapGroup": "back_horizontal",
+      "equipment": [
+        "barbell"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "t_bar_row",
+      "name": "T Bar Row",
+      "swapGroup": "back_horizontal",
+      "equipment": [
+        "barbell"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "close_grip_seated_row",
+      "name": "Close Grip Seated Row",
+      "swapGroup": "back_horizontal",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "wide_grip_seated_row",
+      "name": "Wide Grip Seated Row",
+      "swapGroup": "back_horizontal",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "one_arm_db_row",
+      "name": "One Arm DB Row",
+      "swapGroup": "back_horizontal",
+      "equipment": [
+        "dumbbell"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "inverted_row",
+      "name": "Inverted Row",
+      "swapGroup": "back_horizontal",
+      "equipment": [
+        "bodyweight"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "smith_row",
+      "name": "Smith Row",
+      "swapGroup": "back_horizontal",
+      "equipment": [
+        "smith"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "chest_supported_db_row",
+      "name": "Chest Supported DB Row",
+      "swapGroup": "back_horizontal",
+      "equipment": [
+        "dumbbell"
+      ],
+      "inSwapDoc": false,
+      "note": "Added from the program (not listed in the swap document)."
+    },
+    {
+      "id": "cable_row",
+      "name": "Seated Cable Row",
+      "swapGroup": "back_horizontal",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": false,
+      "note": "Added from the program (not listed in the swap document)."
+    },
+    {
+      "id": "pull_up",
+      "name": "Barfiks (Pull-up)",
+      "swapGroup": "back_vertical",
+      "equipment": [
+        "bodyweight"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "wide_grip_lat_pulldown",
+      "name": "Wide Grip Lat Pulldown",
+      "swapGroup": "back_vertical",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "close_grip_lat_pulldown",
+      "name": "Close Grip Lat Pulldown",
+      "swapGroup": "back_vertical",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "reverse_grip_lat_pulldown",
+      "name": "Reverse Grip Lat Pulldown",
+      "swapGroup": "back_vertical",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "lat_pulldown",
+      "name": "Lat Pulldown (Normal Grip)",
+      "swapGroup": "back_vertical",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "rope_cable_pullover",
+      "name": "Rope Cable Pullover",
+      "swapGroup": "back_isolation",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "wide_grip_cable_pullover",
+      "name": "Wide Grip Cable Pullover",
+      "swapGroup": "back_isolation",
+      "equipment": [
+        "cable"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "hack_squat",
+      "name": "Hack Squat",
+      "swapGroup": "legs_squat",
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "smith_squat",
+      "name": "Smith Squat",
+      "swapGroup": "legs_squat",
+      "equipment": [
+        "smith"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "leg_press",
+      "name": "Leg Press",
+      "swapGroup": "legs_squat",
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "leg_extension",
+      "name": "Leg Extension",
+      "swapGroup": "legs_quad",
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "sissy_squat",
+      "name": "Sissy Squat",
+      "swapGroup": "legs_quad",
+      "equipment": [
+        "bodyweight"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "leg_curl",
+      "name": "Leg Curl",
+      "swapGroup": "legs_hamstring",
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": false,
+      "note": "Program doesn't specify seated or lying; use whichever your gym has."
+    },
+    {
+      "id": "seated_leg_curl",
+      "name": "Seated Leg Curl",
+      "swapGroup": "legs_hamstring",
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "lying_leg_curl",
+      "name": "Lying Leg Curl",
+      "swapGroup": "legs_hamstring",
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "nordic_curl",
+      "name": "Nordic Curl",
+      "swapGroup": "legs_hamstring",
+      "equipment": [
+        "bodyweight"
+      ],
+      "inSwapDoc": true
+    },
+    {
+      "id": "lunge",
+      "name": "Lunge",
+      "swapGroup": null,
+      "equipment": [
+        "dumbbell",
+        "bodyweight"
+      ],
+      "inSwapDoc": false,
+      "note": "Added from the program (not listed in the swap document). No listed alternatives."
+    },
+    {
+      "id": "seated_calf_raise",
+      "name": "Seated Calf Raise",
+      "swapGroup": null,
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": false,
+      "note": "Added from the program (not listed in the swap document). No listed alternatives."
+    },
+    {
+      "id": "abductor_machine",
+      "name": "Abductor Machine",
+      "swapGroup": null,
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": false,
+      "note": "Added from the program (not listed in the swap document). No listed alternatives."
+    },
+    {
+      "id": "adductor_machine",
+      "name": "Adductor Machine",
+      "swapGroup": null,
+      "equipment": [
+        "machine"
+      ],
+      "inSwapDoc": false,
+      "note": "Added from the program (not listed in the swap document). No listed alternatives."
+    }
+  ]
+}

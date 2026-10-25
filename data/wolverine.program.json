@@ -1,0 +1,956 @@
+{
+  "$schema": "./program.schema.json",
+  "schemaVersion": 1,
+  "id": "wolverine",
+  "name": "Wolverine",
+  "description": "12 Haftalık | Kilo Verme ve Yağ Yakma Odaklı Program",
+  "goal": "fat_loss",
+  "durationWeeks": 12,
+  "units": "kg",
+  "weeklySchedule": {
+    "mon": "upper_a",
+    "tue": "lower_a",
+    "wed": null,
+    "thu": "upper_b",
+    "fri": "lower_b",
+    "sat": null,
+    "sun": null
+  },
+  "dayTemplates": {
+    "upper_a": {
+      "name": "Üst Vücut A",
+      "focus": "Göğüs + Sırt + Omuz + Biceps + Triceps"
+    },
+    "lower_a": {
+      "name": "Alt Vücut A",
+      "focus": "Bacak"
+    },
+    "upper_b": {
+      "name": "Üst Vücut B",
+      "focus": "Göğüs + Sırt + Omuz + Biceps + Triceps"
+    },
+    "lower_b": {
+      "name": "Alt Vücut B",
+      "focus": "Bacak"
+    }
+  },
+  "rules": {
+    "restBetweenSetsSec": {
+      "min": 120,
+      "max": 180
+    },
+    "restBetweenExercisesSec": 60,
+    "cardio": {
+      "frequency": "daily",
+      "timing": "Every morning or at the end of the workout",
+      "type": "incline_walk",
+      "durationMin": 30,
+      "incline": 10,
+      "speedKmh": 6
+    }
+  },
+  "techniques": {
+    "straight": {
+      "name": "Straight Set",
+      "description": "Normal sets with the same target reps."
+    },
+    "rpt": {
+      "name": "Reverse Pyramid Training (RPT)",
+      "description": "First set heaviest with the lowest reps (e.g. 6); then lower the weight and raise the reps (e.g. 8-10). End each set 1-2 reps short of failure (RIR 1-2)."
+    },
+    "rest_pause": {
+      "name": "Rest-Pause (RP)",
+      "description": "After the set, rest 10-15 s and do 3-5 more reps. Repeat 3 times: 12 reps - rest - 3/5 - rest - 3/5 - rest - 3/5.",
+      "miniSets": 3,
+      "miniSetRestSec": {
+        "min": 10,
+        "max": 15
+      },
+      "miniSetReps": {
+        "min": 3,
+        "max": 5
+      }
+    },
+    "superset": {
+      "name": "Superset (SS)",
+      "description": "Do two exercises back to back without rest. One set of each + rest = 1 set."
+    },
+    "drop_set": {
+      "name": "Drop Set",
+      "description": "On the last set, reduce the weight 20-30% and continue to failure.",
+      "dropPercent": {
+        "min": 20,
+        "max": 30
+      }
+    }
+  },
+  "nutrition": {
+    "calorieDeficitKcal": {
+      "min": 400,
+      "max": 600
+    },
+    "proteinGPerKg": 2.0,
+    "fatGPerKg": 0.8,
+    "carbs": "remaining_calories",
+    "note": "Carbs mostly before and after training. The goal is fat loss, not just weight: check the mirror, not only the scale."
+  },
+  "phases": [
+    {
+      "id": "phase_1",
+      "name": "Faz 1 – Straight Set + Süper Set (Temel Adaptasyon)",
+      "goal": "Sırt ve omuz aktivasyonu, form kazanımı",
+      "weeks": {
+        "from": 1,
+        "to": 4
+      },
+      "days": {
+        "upper_a": [
+          {
+            "exerciseId": "lat_pulldown",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "machine_shoulder_press",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "incline_machine_chest_press",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "machine_seated_row",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "db_lateral_raise",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "cable_curl",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          },
+          {
+            "exerciseId": "rope_pushdown",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          }
+        ],
+        "lower_a": [
+          {
+            "exerciseId": "leg_extension",
+            "sets": 2,
+            "reps": [
+              12,
+              12
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "leg_press",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "leg_curl",
+            "sets": 2,
+            "reps": [
+              12,
+              12
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "lunge",
+            "sets": 2,
+            "reps": [
+              20,
+              20
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "perSide": true
+          },
+          {
+            "exerciseId": "seated_calf_raise",
+            "sets": 4,
+            "reps": [
+              15,
+              15,
+              15,
+              15
+            ],
+            "rir": "0",
+            "technique": "straight"
+          }
+        ],
+        "upper_b": [
+          {
+            "exerciseId": "machine_shoulder_press",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "lat_pulldown",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "incline_machine_chest_press",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "machine_seated_row",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "db_lateral_raise",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "reverse_ez_bar_curl",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          },
+          {
+            "exerciseId": "rope_pushdown",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          }
+        ],
+        "lower_b": [
+          {
+            "exerciseId": "leg_press",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "leg_extension",
+            "sets": 2,
+            "reps": [
+              12,
+              12
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "leg_curl",
+            "sets": 2,
+            "reps": [
+              12,
+              12
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "abductor_machine",
+            "sets": 2,
+            "reps": [
+              15,
+              15
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          },
+          {
+            "exerciseId": "adductor_machine",
+            "sets": 2,
+            "reps": [
+              15,
+              15
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          }
+        ]
+      }
+    },
+    {
+      "id": "phase_2",
+      "name": "Faz 2 – RPT & Superset (Hacim Artışı)",
+      "goal": "Metabolik stres artırımı, pump + yağ yakımı",
+      "weeks": {
+        "from": 5,
+        "to": 8
+      },
+      "days": {
+        "upper_a": [
+          {
+            "exerciseId": "machine_shoulder_press",
+            "sets": 3,
+            "reps": [
+              6,
+              8,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "rpt"
+          },
+          {
+            "exerciseId": "reverse_grip_lat_pulldown",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "incline_machine_chest_press",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "chest_supported_db_row",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "db_lateral_raise",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "ez_bar_curl",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          },
+          {
+            "exerciseId": "skull_crusher",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          }
+        ],
+        "lower_a": [
+          {
+            "exerciseId": "leg_extension",
+            "sets": 2,
+            "reps": [
+              12,
+              12
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "leg_press",
+            "sets": 3,
+            "reps": [
+              6,
+              8,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "rpt"
+          },
+          {
+            "exerciseId": "leg_curl",
+            "sets": 2,
+            "reps": [
+              12,
+              12
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "lunge",
+            "sets": 2,
+            "reps": [
+              20,
+              20
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "perSide": true
+          },
+          {
+            "exerciseId": "seated_calf_raise",
+            "sets": 2,
+            "reps": [
+              15,
+              15
+            ],
+            "rir": "0",
+            "technique": "straight"
+          }
+        ],
+        "upper_b": [
+          {
+            "exerciseId": "lat_pulldown",
+            "sets": 3,
+            "reps": [
+              6,
+              8,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "rpt"
+          },
+          {
+            "exerciseId": "machine_shoulder_press",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "incline_machine_chest_press",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "pec_deck",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "db_lateral_raise",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "hammer_curl",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          },
+          {
+            "exerciseId": "rope_triceps_extension",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          }
+        ],
+        "lower_b": [
+          {
+            "exerciseId": "leg_press",
+            "sets": 3,
+            "reps": [
+              6,
+              8,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "rpt"
+          },
+          {
+            "exerciseId": "leg_extension",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          },
+          {
+            "exerciseId": "leg_curl",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          },
+          {
+            "exerciseId": "abductor_machine",
+            "sets": 2,
+            "reps": [
+              15,
+              15
+            ],
+            "rir": "0",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "seated_calf_raise",
+            "sets": 2,
+            "reps": [
+              15,
+              15
+            ],
+            "rir": "0",
+            "technique": "straight"
+          }
+        ]
+      }
+    },
+    {
+      "id": "phase_3",
+      "name": "Faz 3 – RPT & RP (Yoğunluk + Sertlik Odaklı)",
+      "goal": "Kas sertliği + kondisyon + metabolik stres",
+      "weeks": {
+        "from": 9,
+        "to": 12
+      },
+      "days": {
+        "upper_a": [
+          {
+            "exerciseId": "lat_pulldown",
+            "sets": 3,
+            "reps": [
+              6,
+              8,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "rpt"
+          },
+          {
+            "exerciseId": "machine_shoulder_press",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "incline_machine_chest_press",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "cable_row",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "db_lateral_raise",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "lastSetTechnique": "rest_pause"
+          },
+          {
+            "exerciseId": "rope_curl",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          },
+          {
+            "exerciseId": "straight_bar_pushdown",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          }
+        ],
+        "lower_a": [
+          {
+            "exerciseId": "leg_extension",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "1-2",
+            "technique": "straight",
+            "lastSetTechnique": "rest_pause"
+          },
+          {
+            "exerciseId": "leg_press",
+            "sets": 2,
+            "reps": [
+              6,
+              8
+            ],
+            "rir": "1-2",
+            "technique": "rpt"
+          },
+          {
+            "exerciseId": "leg_curl",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "1-2",
+            "technique": "straight",
+            "lastSetTechnique": "rest_pause"
+          },
+          {
+            "exerciseId": "lunge",
+            "sets": 2,
+            "reps": [
+              20,
+              20
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "perSide": true
+          },
+          {
+            "exerciseId": "seated_calf_raise",
+            "sets": 3,
+            "reps": [
+              15,
+              15,
+              15
+            ],
+            "rir": "0",
+            "technique": "straight"
+          }
+        ],
+        "upper_b": [
+          {
+            "exerciseId": "machine_shoulder_press",
+            "sets": 3,
+            "reps": [
+              6,
+              8,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "rpt"
+          },
+          {
+            "exerciseId": "lat_pulldown",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "incline_machine_chest_press",
+            "sets": 3,
+            "reps": [
+              10,
+              10,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "straight"
+          },
+          {
+            "exerciseId": "middle_cable_chest_fly",
+            "sets": 2,
+            "reps": [
+              12,
+              12
+            ],
+            "rir": "1-2",
+            "technique": "straight",
+            "lastSetTechnique": "rest_pause"
+          },
+          {
+            "exerciseId": "db_lateral_raise",
+            "sets": 2,
+            "reps": [
+              12,
+              12
+            ],
+            "rir": "1-2",
+            "technique": "straight",
+            "lastSetTechnique": "rest_pause"
+          },
+          {
+            "exerciseId": "reverse_ez_bar_curl",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          },
+          {
+            "exerciseId": "rope_pushdown",
+            "sets": 3,
+            "reps": [
+              12,
+              12,
+              12
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "superset": "A"
+          }
+        ],
+        "lower_b": [
+          {
+            "exerciseId": "leg_press",
+            "sets": 3,
+            "reps": [
+              6,
+              8,
+              10
+            ],
+            "rir": "1-2",
+            "technique": "rpt"
+          },
+          {
+            "exerciseId": "leg_extension",
+            "sets": 2,
+            "reps": [
+              12,
+              12
+            ],
+            "rir": "1-2",
+            "technique": "straight",
+            "superset": "A"
+          },
+          {
+            "exerciseId": "leg_curl",
+            "sets": 2,
+            "reps": [
+              12,
+              12
+            ],
+            "rir": "1-2",
+            "technique": "straight",
+            "superset": "A"
+          },
+          {
+            "exerciseId": "lunge",
+            "sets": 2,
+            "reps": [
+              20,
+              20
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "perSide": true
+          },
+          {
+            "exerciseId": "adductor_machine",
+            "sets": 2,
+            "reps": [
+              15,
+              15
+            ],
+            "rir": "0",
+            "technique": "straight",
+            "note": "The source marks this as a superset (SS) but gives it no partner, so it is treated as a straight set."
+          }
+        ]
+      }
+    }
+  ]
+}

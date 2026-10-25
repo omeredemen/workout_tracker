@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "program.schema.json",
+  "title": "Training Program",
+  "description": "A multi-week training program. The app expands phases x weeklySchedule into a dated calendar from a chosen start date.",
+  "type": "object",
+  "required": ["schemaVersion", "id", "name", "durationWeeks", "weeklySchedule", "dayTemplates", "phases"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "id": { "$ref": "#/$defs/slug" },
+    "name": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "goal": { "enum": ["fat_loss", "muscle_gain", "maintenance", "strength"] },
+    "durationWeeks": { "type": "integer", "minimum": 1, "maximum": 52 },
+    "units": { "enum": ["kg", "lb"], "default": "kg" },
+    "weeklySchedule": {
+      "description": "Maps each weekday to a dayTemplates key, or null for a rest day.",
+      "type": "object",
+      "required": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+      "additionalProperties": false,
+      "properties": {
+        "mon": { "$ref": "#/$defs/dayRef" },
+        "tue": { "$ref": "#/$defs/dayRef" },
+        "wed": { "$ref": "#/$defs/dayRef" },
+        "thu": { "$ref": "#/$defs/dayRef" },
+        "fri": { "$ref": "#/$defs/dayRef" },
+        "sat": { "$ref": "#/$defs/dayRef" },
+        "sun": { "$ref": "#/$defs/dayRef" }
+      }
+    },
+    "dayTemplates": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/$defs/slug" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "focus": { "type": "string" }
+        }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "properties": {
+        "restBetweenSetsSec": { "$ref": "#/$defs/range" },
+        "restBetweenExercisesSec": { "type": "integer", "minimum": 0 },
+        "cardio": {
+          "type": "object",
+          "properties": {
+            "frequency": { "enum": ["daily", "training_days", "custom"] },
+            "timing": { "type": "string" },
+            "type": { "type": "string" },
+            "durationMin": { "type": "number", "minimum": 0 },
+            "incline": { "type": "number" },
+            "speedKmh": { "type": "number" }
+          }
+        }
+      }
+    },
+    "techniques": {
+      "description": "Human-readable explanations shown in the app. Keys referenced by exercises must exist here.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["name", "description"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "nutrition": {
+      "type": "object",
+      "properties": {
+        "calorieDeficitKcal": { "$ref": "#/$defs/range" },
+        "calorieSurplusKcal": { "$ref": "#/$defs/range" },
+        "proteinGPerKg": { "type": "number", "minimum": 0 },
+        "fatGPerKg": { "type": "number", "minimum": 0 },
+        "carbs": { "const": "remaining_calories" },
+        "note": { "type": "string" }
+      }
+    },
+    "exercises": {
+      "description": "Optional: extra exercises not in exercise-library.json. Same shape as library entries.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/libraryExercise" }
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/phase" }
+    }
+  },
+  "$defs": {
+    "slug": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+    "dayRef": { "oneOf": [{ "$ref": "#/$defs/slug" }, { "type": "null" }] },
+    "range": {
+      "type": "object",
+      "required": ["min", "max"],
+      "properties": { "min": { "type": "number" }, "max": { "type": "number" } }
+    },
+    "phase": {
+      "type": "object",
+      "required": ["id", "name", "weeks", "days"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "name": { "type": "string" },
+        "goal": { "type": "string" },
+        "weeks": {
+          "type": "object",
+          "required": ["from", "to"],
+          "properties": {
+            "from": { "type": "integer", "minimum": 1 },
+            "to": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "days": {
+          "description": "Workout for each dayTemplates key used in weeklySchedule.",
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/slug" },
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/plannedExercise" }
+          }
+        }
+      }
+    },
+    "plannedExercise": {
+      "type": "object",
+      "required": ["exerciseId", "sets", "reps", "rir", "technique"],
+      "additionalProperties": false,
+      "properties": {
+        "exerciseId": { "$ref": "#/$defs/slug" },
+        "sets": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "reps": {
+          "description": "Target reps for each set, one number per set (RPT: [6, 8, 10]).",
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1 }
+        },
+        "rir": {
+          "description": "Reps in reserve: a number or a range like \"1-2\".",
+          "type": "string",
+          "pattern": "^[0-9](-[0-9])?$"
+        },
+        "technique": { "enum": ["straight", "rpt", "drop_set"] },
+        "lastSetTechnique": {
+          "description": "Applied only on the final set.",
+          "enum": ["rest_pause", "drop_set"]
+        },
+        "superset": {
+          "description": "Exercises in the same day with the same letter are done back to back.",
+          "type": "string",
+          "pattern": "^[A-Z]$"
+        },
+        "perSide": { "type": "boolean", "default": false },
+        "note": { "type": "string" }
+      }
+    },
+    "libraryExercise": {
+      "type": "object",
+      "required": ["id", "name", "swapGroup", "equipment"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "name": { "type": "string" },
+        "swapGroup": { "oneOf": [{ "$ref": "#/$defs/slug" }, { "type": "null" }] },
+        "equipment": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "enum": ["machine", "dumbbell", "barbell", "smith", "ez_bar", "cable", "bodyweight"] }
+        },
+        "inSwapDoc": { "type": "boolean" },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

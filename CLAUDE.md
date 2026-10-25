@@ -1,0 +1,54 @@
+@AGENTS.md
+
+# Workout Tracker
+
+Mobile-first PWA: import a training program (JSON), pick a Monday start date, follow the generated calendar, log every set. Full spec and milestones: `data/PROJECT_PLAN.md` — read it before starting a milestone.
+
+## Stack
+
+Next.js 16 (App Router) · TypeScript strict (+ `noUncheckedIndexedAccess`) · Tailwind CSS 4 · Zod 4 · date-fns 4 · Vitest · Supabase (from M4) · Serwist for the service worker (M5) · Vercel · pnpm.
+
+Next.js 16 differs from older versions — check `node_modules/next/dist/docs/` before using an API you're unsure of. `next.config.ts` enables `cacheComponents` and `partialPrefetching`; the offline guide (`01-app/02-guides/offline-support.md`) is relevant for M5.
+
+## Commands
+
+pnpm is run through corepack (not installed globally): use `corepack pnpm <cmd>`, or run `corepack enable` once to get a plain `pnpm`.
+
+| Command                             | What it does                                          |
+| ----------------------------------- | ----------------------------------------------------- |
+| `pnpm dev`                          | dev server                                            |
+| `pnpm test`                         | Vitest, single run (`pnpm test:watch` for watch mode) |
+| `pnpm typecheck`                    | `next typegen` + `tsc --noEmit`                       |
+| `pnpm lint`                         | ESLint                                                |
+| `pnpm format` / `pnpm format:check` | Prettier (with Tailwind class sorting)                |
+
+A milestone is done only when `test`, `typecheck` and `lint` are clean. Commit after each milestone.
+
+## Folder rules
+
+- `data/` — provided JSON (`program.schema.json`, `wolverine.program.json`, `exercise-library.json`) and the project plan. Import with the `@data/*` alias. Don't edit these files to make code pass; flag ambiguities instead (plan §7).
+- `src/domain/` — pure TypeScript domain logic and Zod schemas. **No React, Next, Supabase or `@/data` imports** (enforced by ESLint). Every function is unit-tested in `src/domain/__tests__/`.
+- `src/data/` — the `Repository` interface and its implementations (localStorage first, Supabase in M4). UI talks only to the interface.
+- `src/components/` — React components (`ui/`, `workout/`, `calendar/`, `nav/`).
+- `src/app/` — routes only; keep them thin.
+- `supabase/migrations/` — numbered SQL migrations.
+
+## Data model decisions (these replace plan §4 where they differ)
+
+- Every table has `user_id`; RLS on every table is `user_id = auth.uid()`.
+- Ids are UUIDs generated on the device; every row has `updated_at` and soft-delete `deleted_at`, so writes are repeatable upserts (needed for the M4 import and the M5 offline queue).
+- The exercise library is a bundled static file, not a table. The calendar is computed by `generateSchedule`, never stored.
+- `sessions` rows are created only when something happens (started / skipped / cardio ticked). Status is `in_progress | completed | skipped`; "missed" is derived (a past workout day with no completed session). Unique `(enrollment_id, date)`.
+- `set_logs`: weights stored in **kg** (units are display-only); has `performed_on` (copied from `sessions.date`), `planned_exercise_id` + actual `exercise_id`, `mini_set_reps smallint[]`, `drop_weight_kg` / `drop_reps`. Unique `(session_id, planned_exercise_id, set_index)`.
+- "Last time" looks up the **actual** `exercise_id`, not the planned slot.
+- A planned slot is identified by `(phase_id, day_key, exerciseId)`; `parseProgram` rejects a day that lists the same exercise twice.
+- `exercise_swaps` unique `(enrollment_id, phase_id, day_key, planned_exercise_id)`. The same-swap-group rule is enforced in `src/domain/`.
+- `programs.json` can't be changed once imported; re-importing creates a new program row.
+- One active enrollment per user (partial unique index).
+- `profiles` table holds per-user settings (units).
+
+## Conventions
+
+- Mobile-first, ~390 px wide: big tap targets, `inputMode="decimal"` / `"numeric"` for weight/reps, respect safe-area insets, dark mode via `prefers-color-scheme`.
+- Colors go through the theme tokens in `globals.css` (`background`, `foreground`, `muted`), not raw hex in components.
+- Show readable validation errors for imported programs; never silently fix program data.
