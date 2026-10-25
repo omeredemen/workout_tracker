@@ -42,10 +42,17 @@ A milestone is done only when `test`, `typecheck` and `lint` are clean. Commit a
 - `set_logs`: weights stored in **kg** (units are display-only); has `performed_on` (copied from `sessions.date`), `planned_exercise_id` + actual `exercise_id`, `mini_set_reps smallint[]`, `drop_weight_kg` / `drop_reps`. Unique `(session_id, planned_exercise_id, set_index)`.
 - "Last time" looks up the **actual** `exercise_id`, not the planned slot.
 - A planned slot is identified by `(phase_id, day_key, exerciseId)`; `parseProgram` rejects a day that lists the same exercise twice.
-- `exercise_swaps` unique `(enrollment_id, phase_id, day_key, planned_exercise_id)`. The same-swap-group rule is enforced in `src/domain/`.
+- `exercise_swaps` has a `from_date`: a swap applies from that date to the end of its phase, so earlier workouts in the phase still show what was actually done. Swapping the same slot again adds a row; the latest `from_date` on or before the day wins. The same-swap-group rule is enforced in `src/domain/` (`canSwap`).
 - `programs.json` can't be changed once imported; re-importing creates a new program row.
 - One active enrollment per user (partial unique index).
 - `profiles` table holds per-user settings (units).
+
+## Domain layer (M1)
+
+- Entry points: `parseProgram(json, library)` → `{ ok, program } | { ok, errors: {path, message}[] }`; `generateSchedule`, `resolveWorkout`, `getSwapOptions` / `canSwap` / `isMidPhase`, `previousPerformance`, `nutritionTargets`.
+- Dates are `IsoDate` strings (`yyyy-MM-dd`, local time); convert only through `src/domain/dates.ts`.
+- Pass `withProgramExercises(library, program)` wherever a program's own extra exercises must be visible (`resolveWorkout`, swap options).
+- Types come from the Zod schemas (`z.output`), in `src/domain/types.ts`. Test fixtures live in `src/domain/__tests__/fixtures.ts`.
 
 ## Conventions
 
