@@ -2,21 +2,37 @@
 
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
+import { findExercise } from "@/domain/library";
+import { previousPerformance } from "@/domain/previousPerformance";
+import { restAfterSet } from "@/domain/rest";
 import { resolveWorkout } from "@/domain/resolveWorkout";
+import { getSwapOptions, isMidPhase } from "@/domain/swaps";
 import type { ResolvedExercise } from "@/domain/types";
 import {
   useActiveProgram,
   useRepoQuery,
+  useToday,
   type ActiveProgram,
 } from "@/data/hooks";
 import { newId } from "@/data/ids";
-import type { SessionRecord } from "@/data/records";
 import type { Repository } from "@/data/repository";
 import { useRepository } from "@/data/RepositoryProvider";
+import { startedStatus, updateSession } from "@/data/sessions";
 import { formatLongDate } from "@/lib/format";
+import { restTimer } from "@/lib/restTimer";
+import { CardioToggle } from "@/components/today/CardioToggle";
 import { ErrorMessage, Loading, Screen } from "@/components/ui/Screen";
+import { Sheet } from "@/components/ui/Sheet";
 import { button, card } from "@/components/ui/styles";
-import { ExerciseCard } from "./ExerciseCard";
+import { ExerciseCard, type ExplainKey } from "./ExerciseCard";
+import { SwapSheet } from "./SwapSheet";
+import type { SaveSet } from "./types";
+
+const RIR_EXPLANATION = {
+  name: "Reps in reserve (RIR)",
+  description:
+    "How many more reps you could still do when you stop the set. RIR 0 means you couldn't do another rep; RIR 1-2 means stop one or two reps before that.",
+};
 
 export function WorkoutView({ date }: { date: string }) {
   const active = useActiveProgram();
@@ -34,13 +50,6 @@ export function WorkoutView({ date }: { date: string }) {
   return <ProgramWorkout active={active.data} date={date} />;
 }
 
-export type SaveSet = (
-  exercise: ResolvedExercise,
-  setIndex: number,
-  weightKg: number | null,
-  reps: number,
-) => Promise<void>;
-
 function ProgramWorkout({
   active,
   date,
@@ -49,8 +58,12 @@ function ProgramWorkout({
   date: string;
 }) {
   const repo = useRepository();
+  const today = useToday();
   const { program, library, schedule, enrollment } = active;
   const day = schedule.find((d) => d.date === date);
+  const [error, setError] = useState<Error | null>(null);
+  const [explaining, setExplaining] = useState<ExplainKey | null>(null);
+  const [swapping, setSwapping] = useState<ResolvedExercise | null>(null);
 
   const data = useRepoQuery(
     useCallback(
@@ -71,7 +84,28 @@ function ProgramWorkout({
     () => (day && swaps ? resolveWorkout(program, library, swaps, day) : null),
     [program, library, swaps, day],
   );
-  const [error, setError] = useState<Error | null>(null);
+  const exercises = useMemo(
+    () =>
+      workout?.blocks.flatMap((b) =>
+        b.kind === "single" ? [b.exercise] : b.exercises,
+      ) ?? [],
+    [workout],
+  );
+
+  // History for "last time": every earlier log of the exercises actually being done.
+  const exerciseIds = [...new Set(exercises.map((e) => e.exercise.id))]
+    .sort()
+    .join(",");
+  const history = useRepoQuery(
+    useCallback(
+      (r: Repository) =>
+        r.listSetLogsForExercises(
+          exerciseIds ? exerciseIds.split(",") : [],
+          date,
+        ),
+      [exerciseIds, date],
+    ),
+  );
 
   if (!day) {
     return (
@@ -80,21 +114,31 @@ function ProgramWorkout({
       </Screen>
     );
   }
-  if (data.status === "loading") return <Loading />;
+  if (data.status === "loading" || history.status === "loading")
+    return <Loading />;
   if (data.status === "error") return <ErrorMessage error={data.error} />;
+  if (history.status === "error") return <ErrorMessage error={history.error} />;
+
+  const { session, logs } = data.data;
+  const phase = program.phases.find((p) => p.id === day.phaseId)!;
+
   if (!workout) {
     return (
-      <Screen title="Rest day" subtitle={formatLongDate(date)}>
-        <BackLink />
+      <Screen
+        title="Rest day"
+        subtitle={formatLongDate(date)}
+        action={<BackLink />}
+      >
+        <CardioToggle
+          program={program}
+          enrollmentId={enrollment.id}
+          day={day}
+          session={session}
+        />
       </Screen>
     );
   }
 
-  const { session, logs } = data.data;
-  const phase = program.phases.find((p) => p.id === day.phaseId)!;
-  const exercises = workout.blocks.flatMap((b) =>
-    b.kind === "single" ? [b.exercise] : b.exercises,
-  );
   const totalSets = exercises.reduce((n, e) => n + e.sets, 0);
   const logFor = (e: ResolvedExercise, setIndex: number) =>
     logs.find(
@@ -109,26 +153,11 @@ function ProgramWorkout({
     0,
   );
 
-  const ensureSession = async (): Promise<SessionRecord> =>
-    session ??
-    repo.saveSession({
-      id: newId(),
-      enrollmentId: enrollment.id,
-      date,
-      week: day.week,
-      phaseId: day.phaseId,
-      dayKey: day.dayKey,
-      status: "in_progress",
-      cardioDone: false,
-      notes: null,
-      startedAt: new Date().toISOString(),
-      finishedAt: null,
-    });
-
-  const saveSet: SaveSet = async (exercise, setIndex, weightKg, reps) => {
+  const saveSet: SaveSet = async (exercise, setIndex, values) => {
     setError(null);
+    const isNew = !logFor(exercise, setIndex);
     try {
-      const s = await ensureSession();
+      const s = await updateSession(repo, enrollment.id, day, startedStatus);
       await repo.saveSetLog({
         id: logFor(exercise, setIndex)?.id ?? newId(),
         sessionId: s.id,
@@ -136,17 +165,29 @@ function ProgramWorkout({
         plannedExerciseId: exercise.plannedExerciseId,
         exerciseId: exercise.exercise.id,
         setIndex,
-        weightKg,
-        reps,
+        ...values,
       });
     } catch (e) {
       setError(e instanceof Error ? e : new Error(String(e)));
       throw e;
     }
+    // Rest only when logging live, not when filling in or correcting sets afterwards.
+    if (isNew && date === today) {
+      const rest = restAfterSet(
+        workout,
+        exercise.plannedExerciseId,
+        setIndex,
+        program.rules,
+      );
+      if (rest)
+        restTimer.start(
+          rest.seconds,
+          rest.kind === "set" ? "Rest" : "Rest · next exercise",
+        );
+    }
   };
 
   async function finish() {
-    if (!session) return;
     const missing = totalSets - loggedSets;
     if (
       missing > 0 &&
@@ -155,21 +196,61 @@ function ProgramWorkout({
       )
     )
       return;
-    await repo.saveSession({
-      ...session,
+    restTimer.stop();
+    await updateSession(repo, enrollment.id, day!, () => ({
       status: "completed",
       finishedAt: new Date().toISOString(),
-    });
+    }));
   }
 
-  async function reopen() {
-    if (session)
-      await repo.saveSession({
-        ...session,
-        status: "in_progress",
-        finishedAt: null,
-      });
+  async function setStatus(status: "in_progress" | "planned" | "skipped") {
+    await updateSession(repo, enrollment.id, day!, () => ({
+      status,
+      finishedAt: null,
+    }));
   }
+
+  async function swapTo(exerciseId: string) {
+    if (!swapping) return;
+    await repo.saveSwap({
+      id: newId(),
+      enrollmentId: enrollment.id,
+      phaseId: day!.phaseId,
+      dayKey: day!.dayKey!,
+      plannedExerciseId: swapping.plannedExerciseId,
+      replacementExerciseId: exerciseId,
+      fromDate: date,
+    });
+    setSwapping(null);
+  }
+
+  const card_ = (exercise: ResolvedExercise) => {
+    const options = getSwapOptions(library, exercise.plannedExerciseId);
+    return (
+      <ExerciseCard
+        key={exercise.plannedExerciseId}
+        exercise={exercise}
+        plannedName={
+          findExercise(library, exercise.plannedExerciseId)?.name ??
+          exercise.plannedExerciseId
+        }
+        program={program}
+        logs={logs}
+        lastTime={previousPerformance(history.data, exercise.exercise.id, date)}
+        onSave={saveSet}
+        onSwap={options.length ? () => setSwapping(exercise) : undefined}
+        onExplain={setExplaining}
+      />
+    );
+  };
+
+  const explanation =
+    explaining === "rir"
+      ? RIR_EXPLANATION
+      : explaining
+        ? program.techniques[explaining]
+        : undefined;
+  const status = session?.status ?? "planned";
 
   return (
     <Screen
@@ -185,57 +266,120 @@ function ProgramWorkout({
           Couldn&apos;t save: {error.message}
         </p>
       )}
+      {status === "skipped" && (
+        <p className="border-border text-muted rounded-2xl border p-3 text-sm">
+          You skipped this workout. Logging a set un-skips it.
+        </p>
+      )}
 
       {workout.blocks.map((block) =>
         block.kind === "single" ? (
-          <ExerciseCard
-            key={block.exercise.plannedExerciseId}
-            exercise={block.exercise}
-            logs={logs}
-            onSave={saveSet}
-          />
+          card_(block.exercise)
         ) : (
           <section
             key={block.letter}
             className="border-border flex flex-col gap-2 rounded-2xl border-2 border-dashed p-2"
           >
-            <p className="text-muted px-2 pt-1 text-xs font-semibold tracking-wide uppercase">
-              Superset {block.letter} · back to back
-            </p>
-            {block.exercises.map((exercise) => (
-              <ExerciseCard
-                key={exercise.plannedExerciseId}
-                exercise={exercise}
-                logs={logs}
-                onSave={saveSet}
-              />
-            ))}
+            <div className="flex items-center justify-between gap-2 px-2 pt-1">
+              <p className="text-muted text-xs font-semibold tracking-wide uppercase">
+                Superset {block.letter} · back to back, then rest
+              </p>
+              {program.techniques.superset && (
+                <button
+                  type="button"
+                  onClick={() => setExplaining("superset")}
+                  className="text-muted active:bg-surface-2 h-8 rounded-lg px-2 text-xs font-semibold"
+                >
+                  What&apos;s this? ⓘ
+                </button>
+              )}
+            </div>
+            {block.exercises.map(card_)}
           </section>
         ),
       )}
+
+      <CardioToggle
+        program={program}
+        enrollmentId={enrollment.id}
+        day={day}
+        session={session}
+      />
 
       <section className={`${card} flex flex-col gap-3`}>
         <p className="text-muted text-sm">
           {loggedSets} of {totalSets} sets logged
         </p>
-        {session?.status === "completed" ? (
+        {status === "completed" ? (
           <>
             <p className="text-success font-semibold">Workout completed ✓</p>
-            <button type="button" className={button.ghost} onClick={reopen}>
+            <button
+              type="button"
+              className={button.ghost}
+              onClick={() => setStatus("in_progress")}
+            >
               Mark as not finished
             </button>
           </>
         ) : (
-          <button
-            type="button"
-            className={button.primary}
-            onClick={finish}
-            disabled={!session || loggedSets === 0}
-          >
-            Finish workout
-          </button>
+          <>
+            <button
+              type="button"
+              className={button.primary}
+              onClick={finish}
+              disabled={loggedSets === 0}
+            >
+              Finish workout
+            </button>
+            {loggedSets === 0 &&
+              (status === "skipped" ? (
+                <button
+                  type="button"
+                  className={button.ghost}
+                  onClick={() => setStatus("planned")}
+                >
+                  Undo skip
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className={button.ghost}
+                  onClick={() =>
+                    window.confirm("Skip this workout?") && setStatus("skipped")
+                  }
+                >
+                  Skip this workout
+                </button>
+              ))}
+          </>
         )}
       </section>
+
+      <Sheet
+        open={explanation !== undefined}
+        onClose={() => setExplaining(null)}
+        title={explanation?.name}
+      >
+        <p className="leading-relaxed">{explanation?.description}</p>
+      </Sheet>
+
+      <SwapSheet
+        exercise={swapping}
+        planned={
+          swapping
+            ? findExercise(library, swapping.plannedExerciseId)
+            : undefined
+        }
+        options={
+          swapping ? getSwapOptions(library, swapping.plannedExerciseId) : []
+        }
+        midPhase={isMidPhase(program, day)}
+        phaseName={phase.name}
+        dayName={workout.dayName}
+        fromDate={date}
+        onPick={swapTo}
+        onClose={() => setSwapping(null)}
+      />
     </Screen>
   );
 }

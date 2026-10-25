@@ -7,10 +7,13 @@ export type DayStatus =
 export function dayStatus(
   day: Pick<ScheduledDay, "date" | "dayKey">,
   session:
-    { status: "in_progress" | "completed" | "skipped" } | null | undefined,
+    | { status: "planned" | "in_progress" | "completed" | "skipped" }
+    | null
+    | undefined,
   today: IsoDate,
 ): DayStatus {
   if (day.dayKey === null) return "rest";
-  if (session) return session.status;
+  // A "planned" session only holds cardio or notes; the workout itself hasn't started.
+  if (session && session.status !== "planned") return session.status;
   return day.date < today ? "missed" : "planned";
 }

@@ -78,7 +78,16 @@ export class LocalStorageRepository implements Repository {
   }
 
   async saveSwap(swap: Draft<SwapRecord>) {
-    return this.upsert("swaps", swap, (s) => s.id === swap.id);
+    return this.upsert(
+      "swaps",
+      swap,
+      (s) =>
+        s.enrollmentId === swap.enrollmentId &&
+        s.phaseId === swap.phaseId &&
+        s.dayKey === swap.dayKey &&
+        s.plannedExerciseId === swap.plannedExerciseId &&
+        s.fromDate === swap.fromDate,
+    );
   }
 
   async listSessions(enrollmentId: string) {

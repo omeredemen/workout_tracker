@@ -39,7 +39,8 @@ export function resolveWorkout(
     return {
       plannedExerciseId: slot.exerciseId,
       exercise,
-      swapped: replacement !== undefined,
+      // Swapping back to the planned exercise is not a swap.
+      swapped: exercise.id !== slot.exerciseId,
       sets: slot.sets,
       targetReps: slot.reps,
       rir: slot.rir,

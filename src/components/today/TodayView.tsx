@@ -14,6 +14,7 @@ import {
 import type { Repository } from "@/data/repository";
 import { formatLongDate, formatShortDate } from "@/lib/format";
 import { statusCell, statusLabel } from "@/components/calendar/status";
+import { CardioToggle } from "./CardioToggle";
 import { ErrorMessage, Loading, Screen } from "@/components/ui/Screen";
 import { button, card } from "@/components/ui/styles";
 
@@ -158,6 +159,13 @@ function TodayWithProgram({
           )}
         </section>
       )}
+
+      <CardioToggle
+        program={program}
+        enrollmentId={enrollment.id}
+        day={day}
+        session={session}
+      />
     </Screen>
   );
 }

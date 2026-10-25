@@ -114,6 +114,26 @@ describe("LocalStorageRepository", () => {
     expect(logs.map((l) => l.id)).toEqual(["set-1"]);
   });
 
+  it("upserts swaps by slot and start date", async () => {
+    const swap = {
+      id: "w1",
+      enrollmentId: "enrollment-1",
+      phaseId: "phase_2",
+      dayKey: "upper_a",
+      plannedExerciseId: "machine_shoulder_press",
+      replacementExerciseId: "seated_db_shoulder_press",
+      fromDate: "2026-11-23",
+    };
+    await repo.saveSwap(swap);
+    await repo.saveSwap({ ...swap, id: "w2", replacementExerciseId: "bb_overhead_press" });
+    await repo.saveSwap({ ...swap, id: "w3", fromDate: "2026-11-30" });
+    const swaps = await repo.listSwaps("enrollment-1");
+    expect(swaps.map((s) => [s.id, s.replacementExerciseId, s.fromDate])).toEqual([
+      ["w1", "bb_overhead_press", "2026-11-23"],
+      ["w3", "seated_db_shoulder_press", "2026-11-30"],
+    ]);
+  });
+
   it("keeps only one active enrollment", async () => {
     const base = { programId: "p", startDate: "2026-10-19", isActive: true };
     await repo.saveEnrollment({ id: "e1", ...base });

@@ -23,6 +23,15 @@ describe("dayStatus", () => {
     ).toBe("in_progress");
   });
 
+  it("treats a planned session (cardio only) like no session", () => {
+    expect(dayStatus(workout("2026-10-20"), { status: "planned" }, today)).toBe(
+      "missed",
+    );
+    expect(dayStatus(workout("2026-10-22"), { status: "planned" }, today)).toBe(
+      "planned",
+    );
+  });
+
   it("marks past workouts without a session as missed, and today/future as planned", () => {
     expect(dayStatus(workout("2026-10-20"), null, today)).toBe("missed");
     expect(dayStatus(workout("2026-10-21"), null, today)).toBe("planned");

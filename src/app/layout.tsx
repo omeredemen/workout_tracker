@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
 import { BottomNav, NavBar } from "@/components/nav/BottomNav";
 import { RepositoryProvider } from "@/data/RepositoryProvider";
+import { ClientOnly } from "@/components/ui/ClientOnly";
+import { RestTimerBar } from "@/components/workout/RestTimerBar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -37,7 +39,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <RepositoryProvider>{children}</RepositoryProvider>
+        <RepositoryProvider>
+          {children}
+          <ClientOnly>
+            <RestTimerBar />
+          </ClientOnly>
+        </RepositoryProvider>
         <Suspense fallback={<NavBar />}>
           <BottomNav />
         </Suspense>

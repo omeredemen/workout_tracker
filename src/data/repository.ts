@@ -24,6 +24,7 @@ export interface Repository {
   saveEnrollment(enrollment: Draft<EnrollmentRecord>): Promise<EnrollmentRecord>;
 
   listSwaps(enrollmentId: string): Promise<SwapRecord[]>;
+  /** Natural key: (enrollmentId, phaseId, dayKey, plannedExerciseId, fromDate). */
   saveSwap(swap: Draft<SwapRecord>): Promise<SwapRecord>;
 
   listSessions(enrollmentId: string): Promise<SessionRecord[]>;

@@ -27,7 +27,8 @@ export type EnrollmentRecord = Row & {
 
 export type SwapRecord = Row & ExerciseSwap & { enrollmentId: string };
 
-export type SessionStatus = "in_progress" | "completed" | "skipped";
+/** "planned": the row exists only for cardio or notes; the workout hasn't started. */
+export type SessionStatus = "planned" | "in_progress" | "completed" | "skipped";
 
 export type SessionRecord = Row & {
   enrollmentId: string;

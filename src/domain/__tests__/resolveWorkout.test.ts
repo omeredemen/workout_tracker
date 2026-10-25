@@ -128,6 +128,26 @@ describe("resolveWorkout", () => {
       );
     });
 
+    it("treats swapping back to the planned exercise as no swap", () => {
+      const back: ExerciseSwap = {
+        ...swap,
+        replacementExerciseId: "machine_shoulder_press",
+        fromDate: day(7, "upper_a").date,
+      };
+      const workout = resolveWorkout(
+        program,
+        library,
+        [swap, back],
+        day(7, "upper_a"),
+      )!;
+      expect(workout.blocks[0]).toMatchObject({
+        exercise: {
+          exercise: { id: "machine_shoulder_press" },
+          swapped: false,
+        },
+      });
+    });
+
     it("uses the latest swap when a slot was swapped again", () => {
       const later: ExerciseSwap = {
         ...swap,
