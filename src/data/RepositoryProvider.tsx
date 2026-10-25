@@ -14,6 +14,11 @@ export function RepositoryProvider({ children }: { children: ReactNode }) {
   return <RepositoryContext.Provider value={repo}>{children}</RepositoryContext.Provider>;
 }
 
+/** The repository, or null during server rendering. */
+export function useOptionalRepository(): Repository | null {
+  return useContext(RepositoryContext);
+}
+
 export function useRepository(): Repository {
   const repo = useContext(RepositoryContext);
   if (!repo) throw new Error("useRepository must be used in the browser, inside RepositoryProvider");

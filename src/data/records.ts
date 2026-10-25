@@ -45,5 +45,12 @@ export type SessionRecord = Row & {
 
 export type SetLogRecord = Row & SetLog;
 
+export type BodyMetricRecord = Row & {
+  date: IsoDate;
+  weightKg: number | null;
+  waistCm: number | null;
+  neckCm: number | null;
+};
+
 /** What callers pass to a save: the repository fills in the timestamps. */
 export type Draft<T extends Row> = Omit<T, "createdAt" | "updatedAt" | "deletedAt">;

@@ -1,5 +1,6 @@
 import type { IsoDate } from "@/domain/types";
 import type {
+  BodyMetricRecord,
   Draft,
   EnrollmentRecord,
   ProgramRecord,
@@ -38,6 +39,14 @@ export interface Repository {
   /** Natural key: (sessionId, plannedExerciseId, setIndex). */
   saveSetLog(log: Draft<SetLogRecord>): Promise<SetLogRecord>;
   deleteSetLog(id: string): Promise<void>;
+  /** Every live set log, for progress charts. */
+  listAllSetLogs(): Promise<SetLogRecord[]>;
+
+  /** Sorted by date. */
+  listBodyMetrics(): Promise<BodyMetricRecord[]>;
+  /** Natural key: date (one entry per day). */
+  saveBodyMetric(metric: Draft<BodyMetricRecord>): Promise<BodyMetricRecord>;
+  deleteBodyMetric(id: string): Promise<void>;
 
   /** Called after any change, including changes from other tabs. Returns an unsubscribe function. */
   subscribe(listener: () => void): () => void;

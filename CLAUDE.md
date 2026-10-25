@@ -72,6 +72,16 @@ A milestone is done only when `test`, `typecheck` and `lint` are clean. Commit a
 - Weight suggestions: same set index last time (handles RPT), else this session's previous set; suggestions render muted until saved.
 - Session changes go through `updateSession` (`src/data/sessions.ts`), which creates the row on demand.
 
+## Sync (M4)
+
+- Local-first: the UI only ever talks to `LocalStorageRepository`. `src/data/sync/` pushes queued local changes to Supabase and pulls remote ones (`syncOnce`); `SyncProvider` runs it on start, after changes (2 s debounce), on `online`/visibility, and every 5 min.
+- Once a device has an owner (`claimFor`, on first sign-in, which queues all existing rows = the one-time import), every write is recorded as dirty in `workout-tracker:sync:v1`; that list is the offline write queue.
+- Conflicts: last write wins on `updated_at`, enforced on the server by the `keep_newest` trigger and locally in `applyRemote`. Rows created on two devices for the same natural key adopt the server's id (`adoptServerIds` / `remapId`).
+- Pulls use the server-set `server_updated_at`, re-reading 60 s back to tolerate out-of-order commits.
+- A device holding another account's data must be cleared before syncing (Settings shows a "Different account" prompt).
+- New synced columns: add them to the migration, `SYNC_TABLES` (`src/data/sync/tables.ts`) and the record type.
+- Tests: `supabase/tests/rls.test.ts` runs migrations + RLS on PGlite; `e2e/fake-supabase.mts` serves auth + REST on PGlite for Playwright (codes are always `123456`).
+
 ## Conventions
 
 - Mobile-first, ~390 px wide: big tap targets, `inputMode="decimal"` / `"numeric"` for weight/reps, respect safe-area insets, dark mode via `prefers-color-scheme`.

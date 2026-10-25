@@ -10,6 +10,9 @@ class MemoryStorage {
   setItem(key: string, value: string) {
     this.data.set(key, value);
   }
+  removeItem(key: string) {
+    this.data.delete(key);
+  }
 }
 
 let storage: MemoryStorage;

@@ -15,6 +15,11 @@ const items = [
     label: "Program",
     icon: "M6 4h12v16H6zM9 8h6M9 12h6M9 16h3",
   },
+  {
+    href: "/settings",
+    label: "Settings",
+    icon: "M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1M13 4v4M7 10v4M15 16v4",
+  },
 ];
 
 export function BottomNav() {
@@ -36,7 +41,7 @@ export function NavBar({
 }) {
   return (
     <nav className="border-border bg-surface/95 fixed inset-x-0 bottom-0 z-10 border-t pb-[env(safe-area-inset-bottom)] backdrop-blur">
-      <ul className="mx-auto grid max-w-md grid-cols-3">
+      <ul className="mx-auto grid max-w-md grid-cols-4">
         {items.map(({ href, label, icon }) => {
           const active = isActive(href);
           return (
