@@ -88,6 +88,18 @@ A milestone is done only when `test`, `typecheck` and `lint` are clean. Commit a
 - `public/sw.js` precaches every page in its `PAGES` list (add new routes there) and their static assets at install; pages are network-first with cache fallback. Router (RSC) requests are never cached: offline they get a 503 so Next.js falls back to a full page load, which the cache serves. It registers only in production (`ServiceWorker` component), versioned by `NEXT_PUBLIC_APP_VERSION` (commit SHA on Vercel).
 - `pnpm test:e2e` has two projects: `app` (dev server :3100) and `pwa` (production build in `.next-e2e`, :3200) for service worker and offline tests.
 
+## Progress, import, settings (M6)
+
+- `src/domain/progress.ts`: `movingAverage` (7 calendar days), `bestSetPerSession` (highest Epley e1RM; most reps for bodyweight), `weeklyCompletion`.
+- Charts are hand-written SVG (`src/components/charts/`), following the dataviz skill: one data colour `--series-1` (validated in both modes), 2px lines, hairline grids, crosshair/keyboard tooltip, a table view on every chart, legends only for 2+ series.
+- Body metrics are a synced table (`body_metrics`); units (`src/lib/units.ts`) and maintenance calories are per-device preferences in localStorage, not synced. Weights are stored in kg; compare edits in display units.
+- Programs page: start the built-in program, re-date the current one, or import JSON (paste/upload) validated by `parseProgram` against the bundled library. `startProgram` reuses an identical stored program, else stores a new one.
+- Settings → Export writes every table (including soft-deleted rows) as JSON.
+
+## Troubleshooting
+
+- New Tailwind classes not applying, or type errors mentioning deleted routes, in `pnpm dev`: the persistent dev cache is stale. Stop the server and `rm -rf .next/dev`.
+
 ## Conventions
 
 - Mobile-first, ~390 px wide: big tap targets, `inputMode="decimal"` / `"numeric"` for weight/reps, respect safe-area insets, dark mode via `prefers-color-scheme`.

@@ -4,6 +4,7 @@ import type { PreviousPerformance } from "@/domain/previousPerformance";
 import type { Program, ResolvedExercise } from "@/domain/types";
 import type { SetLogRecord } from "@/data/records";
 import { formatShortDate } from "@/lib/format";
+import { useUnits } from "@/lib/units";
 import { card } from "@/components/ui/styles";
 import { SetRow } from "./SetRow";
 import type { LastSetExtra, SaveSet } from "./types";
@@ -42,6 +43,7 @@ export function ExerciseCard({
   const techniqueName = (key: string) =>
     program.techniques[key]?.name.replace(/\s*\(.*\)$/, "") ?? key;
   const extra = lastSetExtra(exercise, program);
+  const units = useUnits();
 
   return (
     <section className={`${card} flex flex-col gap-3`}>
@@ -108,7 +110,7 @@ export function ExerciseCard({
 
       <div className="text-muted grid grid-cols-[2rem_1fr_1fr_3rem] items-center gap-2 text-xs">
         <span>Set</span>
-        <span>Weight (kg)</span>
+        <span>Weight ({units})</span>
         <span>Reps</span>
         <span className="sr-only">Save</span>
       </div>

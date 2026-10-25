@@ -12,6 +12,8 @@
   --success: #15803d;
   --warning: #b45309;
   --danger: #b91c1c;
+  /* Charts: categorical slot 1, validated against --surface in both modes. */
+  --series-1: #2a78d6;
 }
 
 @theme inline {
@@ -26,6 +28,7 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
+  --color-series-1: var(--series-1);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -43,6 +46,7 @@
     --success: #4ade80;
     --warning: #fbbf24;
     --danger: #f87171;
+    --series-1: #3987e5;
   }
 }
 

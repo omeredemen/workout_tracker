@@ -11,6 +11,11 @@ const items = [
     icon: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
   },
   {
+    href: "/progress",
+    label: "Progress",
+    icon: "M4 19h16M7 15l4-5 3 3 5-7",
+  },
+  {
     href: "/programs",
     label: "Program",
     icon: "M6 4h12v16H6zM9 8h6M9 12h6M9 16h3",
@@ -41,7 +46,7 @@ export function NavBar({
 }) {
   return (
     <nav className="border-border bg-surface/95 fixed inset-x-0 bottom-0 z-10 border-t pb-[env(safe-area-inset-bottom)] backdrop-blur">
-      <ul className="mx-auto grid max-w-md grid-cols-4">
+      <ul className="mx-auto grid max-w-md grid-cols-5">
         {items.map(({ href, label, icon }) => {
           const active = isActive(href);
           return (

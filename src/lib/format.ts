@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { parseIsoDate } from "@/domain/dates";
 import type { IsoDate } from "@/domain/types";
+import { toDisplay, type Units } from "./units";
 
 /** "Mon 19 Oct" */
 export function formatShortDate(date: IsoDate): string {
@@ -12,8 +13,10 @@ export function formatLongDate(date: IsoDate): string {
   return format(parseIsoDate(date), "EEEE d MMMM");
 }
 
-export function formatWeight(kg: number | null): string {
-  return kg === null ? "BW" : `${Number(kg.toFixed(2))} kg`;
+export function formatWeight(kg: number | null, units: Units = "kg"): string {
+  return kg === null
+    ? "BW"
+    : `${Number(toDisplay(kg, units).toFixed(2))} ${units}`;
 }
 
 /** Accepts "52,5" as well as "52.5" (comma keyboards). Returns undefined if invalid, null if empty. */

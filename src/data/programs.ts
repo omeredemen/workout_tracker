@@ -1,34 +1,25 @@
-import { bundledProgram } from "./bundled";
+import type { Program } from "@/domain/types";
 import { newId } from "./ids";
 import type { EnrollmentRecord } from "./records";
 import type { Repository } from "./repository";
 
 /**
- * Enrolls in the bundled program from `startDate` (a Monday), making it the
- * active enrollment. Programs are immutable, so the stored copy is reused only
- * if it is identical to the bundled one.
+ * Enrolls in `program` from `startDate` (a Monday), making it the active
+ * enrollment. Programs are immutable once stored, so an existing copy is
+ * reused only if it is identical; otherwise a new program row is created.
  */
-export async function startBundledProgram(
+export async function startProgram(
   repo: Repository,
+  program: Program,
   startDate: string,
 ): Promise<EnrollmentRecord> {
-  const json = JSON.stringify(bundledProgram);
+  const json = JSON.stringify(program);
   const existing = (await repo.listPrograms()).find(
-    (p) => p.slug === bundledProgram.id && JSON.stringify(p.json) === json,
+    (p) => p.slug === program.id && JSON.stringify(p.json) === json,
   );
-  const program =
+  const stored =
     existing ??
-    (await repo.saveProgram({
-      id: newId(),
-      slug: bundledProgram.id,
-      name: bundledProgram.name,
-      json: bundledProgram,
-    }));
+    (await repo.saveProgram({ id: newId(), slug: program.id, name: program.name, json: program }));
 
-  return repo.saveEnrollment({
-    id: newId(),
-    programId: program.id,
-    startDate,
-    isActive: true,
-  });
+  return repo.saveEnrollment({ id: newId(), programId: stored.id, startDate, isActive: true });
 }

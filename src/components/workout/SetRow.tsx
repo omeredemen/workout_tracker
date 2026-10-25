@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { SetLog } from "@/domain/types";
 import type { SetLogRecord } from "@/data/records";
 import { formatWeight, parseReps, parseWeight } from "@/lib/format";
+import { fromDisplay, toDisplay, useUnits, type Units } from "@/lib/units";
 import type { LastSetExtra, SetValues } from "./types";
 
 const input =
@@ -42,10 +43,18 @@ export function SetRow({
   const [dropWeightInput, setDropWeightInput] = useState<string | null>(null);
   const [dropRepsInput, setDropRepsInput] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const units = useUnits();
+  // Inputs show and accept display units; values are stored in kg.
+  const shown = (kg: number | null) =>
+    toText(kg === null ? null : toDisplay(kg, units));
+  const toKg = (display: number | null | undefined) =>
+    display === null || display === undefined
+      ? display
+      : fromDisplay(display, units);
 
   const suggested = !saved && weightInput === null && suggestedWeight !== null;
   const weightText =
-    weightInput ?? toText(saved ? saved.weightKg : suggestedWeight);
+    weightInput ?? shown(saved ? saved.weightKg : suggestedWeight);
   const repsText = repsInput ?? toText(saved?.reps ?? null);
   const miniCount = extra?.kind === "rest_pause" ? extra.miniSets : 0;
   const miniTexts =
@@ -53,7 +62,7 @@ export function SetRow({
     Array.from({ length: miniCount }, (_, i) =>
       toText(saved?.miniSetReps?.[i] ?? null),
     );
-  const dropWeightText = dropWeightInput ?? toText(saved?.dropWeightKg ?? null);
+  const dropWeightText = dropWeightInput ?? shown(saved?.dropWeightKg ?? null);
   const dropRepsText = dropRepsInput ?? toText(saved?.dropReps ?? null);
 
   const weight = parseWeight(weightText);
@@ -72,12 +81,12 @@ export function SetRow({
 
   const values: SetValues | null = valid
     ? {
-        weightKg: weight,
+        weightKg: toKg(weight) as number | null,
         reps,
         miniSetReps: minis.filter(
           (m): m is number => m !== null && m !== undefined,
         ),
-        dropWeightKg: dropWeight,
+        dropWeightKg: toKg(dropWeight) as number | null,
         dropReps,
       }
     : null;
@@ -85,10 +94,11 @@ export function SetRow({
   const unchanged =
     saved !== undefined &&
     values !== null &&
-    saved.weightKg === values.weightKg &&
+    // Compared in display units, so lb ↔ kg rounding doesn't look like an edit.
+    shown(saved.weightKg) === toText(weight ?? null) &&
     saved.reps === values.reps &&
     sameNumbers(saved.miniSetReps ?? [], values.miniSetReps) &&
-    (saved.dropWeightKg ?? null) === values.dropWeightKg &&
+    shown(saved.dropWeightKg ?? null) === toText(dropWeight ?? null) &&
     (saved.dropReps ?? null) === values.dropReps;
 
   async function save() {
@@ -123,11 +133,11 @@ export function SetRow({
           {index + 1}
         </span>
         <input
-          aria-label={`${label} weight in kg`}
+          aria-label={`${label} weight in ${units}`}
           inputMode="decimal"
           enterKeyHint="next"
           autoComplete="off"
-          placeholder="kg"
+          placeholder={units}
           value={weightText}
           onChange={(e) => setWeightInput(e.target.value)}
           className={`${input} ${weight === undefined ? "border-danger" : "border-border"} ${suggested ? "text-muted font-normal" : ""}`}
@@ -187,10 +197,10 @@ export function SetRow({
             Drop ({extra.dropHint})
           </span>
           <input
-            aria-label={`${label} drop weight in kg`}
+            aria-label={`${label} drop weight in ${units}`}
             inputMode="decimal"
             autoComplete="off"
-            placeholder="kg"
+            placeholder={units}
             value={dropWeightText}
             onChange={(e) => setDropWeightInput(e.target.value)}
             className={`${smallInput} ${dropWeight === undefined ? "border-danger" : "border-border"}`}
@@ -213,18 +223,18 @@ export function SetRow({
           className="text-muted ml-10 text-xs"
           aria-label={`${label} last time`}
         >
-          Last time: {describeSet(lastTime)}
+          Last time: {describeSet(lastTime, units)}
         </p>
       )}
     </form>
   );
 }
 
-export function describeSet(log: SetLog): string {
-  let text = `${formatWeight(log.weightKg)} × ${log.reps}`;
+export function describeSet(log: SetLog, units: Units = "kg"): string {
+  let text = `${formatWeight(log.weightKg, units)} × ${log.reps}`;
   if (log.miniSetReps?.length) text += ` + ${log.miniSetReps.join(" + ")}`;
   if (log.dropReps != null)
-    text += ` → ${formatWeight(log.dropWeightKg ?? null)} × ${log.dropReps}`;
+    text += ` → ${formatWeight(log.dropWeightKg ?? null, units)} × ${log.dropReps}`;
   return text;
 }
 
