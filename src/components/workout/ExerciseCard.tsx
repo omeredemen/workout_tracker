@@ -1,5 +1,6 @@
 "use client";
 
+import { summarizeAdvice, type SetAdvice } from "@/domain/overload";
 import type { PreviousPerformance } from "@/domain/previousPerformance";
 import type { Program, ResolvedExercise } from "@/domain/types";
 import type { SetLogRecord } from "@/data/records";
@@ -21,6 +22,7 @@ export function ExerciseCard({
   program,
   logs,
   lastTime,
+  advice,
   onSave,
   onSwap,
   onExplain,
@@ -31,6 +33,8 @@ export function ExerciseCard({
   program: Program;
   logs: SetLogRecord[];
   lastTime: PreviousPerformance | null;
+  /** Progressive-overload advice, one per set. */
+  advice: SetAdvice[];
   onSave: SaveSet;
   /** Absent when the exercise has no alternatives. */
   onSwap?: () => void;
@@ -107,6 +111,7 @@ export function ExerciseCard({
           Last done {formatShortDate(lastTime.date)}
         </p>
       )}
+      <OverloadSummary advice={advice} />
 
       <div className="text-muted grid grid-cols-[2rem_1fr_1fr_3rem] items-center gap-2 text-xs">
         <span>Set</span>
@@ -116,6 +121,7 @@ export function ExerciseCard({
       </div>
       {Array.from({ length: exercise.sets }, (_, i) => {
         const previous = lastTime?.sets.find((s) => s.setIndex === i);
+        const setAdvice = advice[i] ?? { kind: "new" as const };
         return (
           <SetRow
             // Remount when the exercise changes (after a swap) so typed values don't carry over.
@@ -123,11 +129,15 @@ export function ExerciseCard({
             index={i}
             targetReps={exercise.targetReps[i]!}
             saved={logAt(i)}
-            // Same set last time (handles RPT), else this session's previous set.
+            // The overload advice for this set (from the same set last time,
+            // which handles RPT), else this session's previous set.
             suggestedWeight={
-              previous?.weightKg ?? logAt(i - 1)?.weightKg ?? null
+              setAdvice.kind === "new"
+                ? (logAt(i - 1)?.weightKg ?? null)
+                : setAdvice.weightKg
             }
             lastTime={previous}
+            advice={setAdvice}
             extra={i === exercise.sets - 1 ? extra : null}
             exerciseName={exercise.exercise.name}
             onSave={(values) => onSave(exercise, i, values)}
@@ -135,6 +145,41 @@ export function ExerciseCard({
         );
       })}
     </section>
+  );
+}
+
+const summaries = {
+  increase: {
+    icon: "↑",
+    text: "Add weight today — you've earned it.",
+    tone: "border-success text-success",
+  },
+  decrease: {
+    icon: "↓",
+    text: "Lighten the load and build back up.",
+    tone: "border-danger text-danger",
+  },
+  repeat: {
+    icon: "=",
+    text: "Same weight — beat last time's reps.",
+    tone: "border-border text-muted",
+  },
+} as const;
+
+/** One line on what progressive overload asks of this exercise today. */
+function OverloadSummary({ advice }: { advice: SetAdvice[] }) {
+  const kind = summarizeAdvice(advice);
+  if (kind === "new") return null;
+  const { icon, text, tone } = summaries[kind];
+  return (
+    <p
+      className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium ${tone}`}
+    >
+      <span aria-hidden className="text-base font-bold">
+        {icon}
+      </span>
+      {text}
+    </p>
   );
 }
 

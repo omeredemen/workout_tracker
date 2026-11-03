@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { findExercise } from "@/domain/library";
+import { adviseSet, plannedTargetReps, weightStepKg } from "@/domain/overload";
 import { previousPerformance } from "@/domain/previousPerformance";
 import { restAfterSet } from "@/domain/rest";
 import { resolveWorkout } from "@/domain/resolveWorkout";
@@ -20,6 +21,7 @@ import { useRepository } from "@/data/RepositoryProvider";
 import { startedStatus, updateSession } from "@/data/sessions";
 import { formatLongDate } from "@/lib/format";
 import { restTimer } from "@/lib/restTimer";
+import { fromDisplay, useUnits } from "@/lib/units";
 import { CardioToggle } from "@/components/today/CardioToggle";
 import { ErrorMessage, Loading, Screen } from "@/components/ui/Screen";
 import { Sheet } from "@/components/ui/Sheet";
@@ -64,6 +66,7 @@ function ProgramWorkout({
   const [error, setError] = useState<Error | null>(null);
   const [explaining, setExplaining] = useState<ExplainKey | null>(null);
   const [swapping, setSwapping] = useState<ResolvedExercise | null>(null);
+  const units = useUnits();
 
   const data = useRepoQuery(
     useCallback(
@@ -237,6 +240,20 @@ function ProgramWorkout({
         program={program}
         logs={logs}
         lastTime={previousPerformance(history.data, exercise.exercise.id, date)}
+        advice={Array.from({ length: exercise.sets }, (_, setIndex) =>
+          adviseSet(history.data, {
+            exerciseId: exercise.exercise.id,
+            setIndex,
+            date,
+            targetReps: exercise.targetReps[setIndex]!,
+            // Plate steps: 2.5 kg / 2 kg dumbbells, or 5 lb.
+            stepKg:
+              units === "lb"
+                ? fromDisplay(5, "lb")
+                : weightStepKg(exercise.exercise),
+            targetFor: (log) => plannedTargetReps(program, schedule, log),
+          }),
+        )}
         onSave={saveSet}
         onSwap={options.length ? () => setSwapping(exercise) : undefined}
         onExplain={setExplaining}

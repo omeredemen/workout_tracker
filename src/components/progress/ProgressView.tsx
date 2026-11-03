@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { findExercise } from "@/domain/library";
-import { bestSetPerSession, weeklyCompletion } from "@/domain/progress";
+import {
+  bestSetPerSession,
+  setsBySession,
+  weeklyCompletion,
+} from "@/domain/progress";
 import {
   useActiveProgram,
   useRepoQuery,
@@ -11,8 +15,9 @@ import {
   type ActiveProgram,
 } from "@/data/hooks";
 import type { Repository } from "@/data/repository";
-import { formatWeight } from "@/lib/format";
-import { toDisplay, useUnits } from "@/lib/units";
+import { formatShortDate, formatWeight } from "@/lib/format";
+import { toDisplay, useUnits, type Units } from "@/lib/units";
+import { describeSet } from "@/components/workout/SetRow";
 import { ColumnChart } from "@/components/charts/ColumnChart";
 import { LineChart } from "@/components/charts/LineChart";
 import { ErrorMessage, Loading, Screen } from "@/components/ui/Screen";
@@ -189,6 +194,69 @@ function ExerciseSection({
           ? "Estimated 1-rep max (Epley) of each workout's best set, so heavier-but-fewer and lighter-but-more reps compare fairly."
           : "Most reps in a set, per workout."}
       </p>
+      <SetHistory sessions={setsBySession(logs, exerciseId)} units={units} />
     </section>
+  );
+}
+
+const CHANGE = {
+  up: { icon: "↑", label: "Weight up", tone: "text-success" },
+  down: { icon: "↓", label: "Weight down", tone: "text-danger" },
+  same: { icon: "=", label: "Same weight", tone: "text-muted" },
+  first: { icon: "•", label: "First time", tone: "text-muted" },
+} as const;
+
+/** Every set of the recent workouts, so weight and rep progress is visible. */
+function SetHistory({
+  sessions,
+  units,
+}: {
+  sessions: ReturnType<typeof setsBySession>;
+  units: Units;
+}) {
+  const [all, setAll] = useState(false);
+  const shown = all ? sessions : sessions.slice(0, 6);
+  return (
+    <div className="flex flex-col gap-2">
+      <h3 className="text-sm font-semibold">Sets by workout</h3>
+      <ol className="divide-border flex flex-col divide-y">
+        {shown.map((s) => {
+          const change = CHANGE[s.change];
+          return (
+            <li key={s.date} className="flex gap-3 py-2">
+              <span
+                className={`w-4 shrink-0 text-center font-bold ${change.tone}`}
+                title={change.label}
+              >
+                <span aria-hidden>{change.icon}</span>
+                <span className="sr-only">{change.label}</span>
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline justify-between gap-2 text-sm">
+                  <span className="font-medium">{formatShortDate(s.date)}</span>
+                  {s.volumeKg > 0 && (
+                    <span className="text-muted text-xs tabular-nums">
+                      Volume {formatWeight(s.volumeKg, units)}
+                    </span>
+                  )}
+                </div>
+                <p className="text-muted text-sm tabular-nums">
+                  {s.sets.map((set) => describeSet(set, units)).join(" · ")}
+                </p>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+      {sessions.length > shown.length && (
+        <button
+          type="button"
+          onClick={() => setAll(true)}
+          className="text-accent self-start text-sm font-medium"
+        >
+          Show all {sessions.length} workouts
+        </button>
+      )}
+    </div>
   );
 }

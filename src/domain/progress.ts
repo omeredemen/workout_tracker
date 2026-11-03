@@ -105,3 +105,51 @@ export function weeklyCompletion(
   }
   return [...weeks.values()];
 }
+
+export type SessionSets = {
+  date: IsoDate;
+  /** Sorted by setIndex. */
+  sets: SetLog[];
+  /** Sum of weight × reps (main sets only; 0 for bodyweight). */
+  volumeKg: number;
+  /** Heaviest set's weight compared with the previous session's. */
+  change: "up" | "down" | "same" | "first";
+};
+
+/** Every session of this exercise with all its sets, newest first. */
+export function setsBySession(
+  logs: SetLog[],
+  exerciseId: string,
+): SessionSets[] {
+  const bySession = new Map<string, SetLog[]>();
+  for (const log of logs) {
+    if (log.exerciseId !== exerciseId) continue;
+    bySession.set(log.sessionId, [
+      ...(bySession.get(log.sessionId) ?? []),
+      log,
+    ]);
+  }
+  const oldestFirst = [...bySession.values()]
+    .map((sets) => sets.sort((a, b) => a.setIndex - b.setIndex))
+    .sort((a, b) => a[0]!.performedOn.localeCompare(b[0]!.performedOn));
+
+  const top = (sets: SetLog[]) => Math.max(...sets.map((s) => s.weightKg ?? 0));
+  return oldestFirst
+    .map((sets, i): SessionSets => {
+      const before = oldestFirst[i - 1];
+      const diff = before ? top(sets) - top(before) : 0;
+      return {
+        date: sets[0]!.performedOn,
+        sets,
+        volumeKg: sets.reduce((n, s) => n + (s.weightKg ?? 0) * s.reps, 0),
+        change: !before
+          ? "first"
+          : diff > 0.05
+            ? "up"
+            : diff < -0.05
+              ? "down"
+              : "same",
+      };
+    })
+    .reverse();
+}

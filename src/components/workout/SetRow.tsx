@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { SetAdvice } from "@/domain/overload";
 import type { SetLog } from "@/domain/types";
 import type { SetLogRecord } from "@/data/records";
 import { formatWeight, parseReps, parseWeight } from "@/lib/format";
@@ -23,6 +24,7 @@ export function SetRow({
   saved,
   suggestedWeight,
   lastTime,
+  advice,
   extra,
   exerciseName,
   onSave,
@@ -32,6 +34,7 @@ export function SetRow({
   saved: SetLogRecord | undefined;
   suggestedWeight: number | null;
   lastTime: SetLog | undefined;
+  advice: SetAdvice;
   extra: LastSetExtra;
   exerciseName: string;
   onSave: (values: SetValues) => Promise<void>;
@@ -226,7 +229,43 @@ export function SetRow({
           Last time: {describeSet(lastTime, units)}
         </p>
       )}
+      {advice.kind !== "new" && (
+        <p className="text-muted ml-10 text-xs" aria-label={`${label} advice`}>
+          <AdviceText advice={advice} units={units} />
+        </p>
+      )}
     </form>
+  );
+}
+
+function AdviceText({
+  advice,
+  units,
+}: {
+  advice: Exclude<SetAdvice, { kind: "new" }>;
+  units: Units;
+}) {
+  const w = (kg: number | null) => formatWeight(kg, units);
+  let action: string;
+  let tone: string;
+  if (advice.kind === "repeat") {
+    action = `Today: ${w(advice.weightKg)} × ${advice.goalReps}+`;
+    tone = "text-foreground";
+  } else if (advice.kind === "increase") {
+    action =
+      advice.weightKg === null
+        ? "Today: add load or reps"
+        : `Today: ${w(advice.weightKg)} (↑ from ${w(advice.fromKg)})`;
+    tone = "text-success";
+  } else {
+    action = `Today: ${w(advice.weightKg)} (↓ from ${w(advice.fromKg)})`;
+    tone = "text-danger";
+  }
+  return (
+    <>
+      <strong className={`font-semibold ${tone}`}>{action}</strong> ·{" "}
+      {advice.reason}
+    </>
   );
 }
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { generateSchedule } from "../generateSchedule";
 import {
   bestSetPerSession,
+  setsBySession,
   estimatedOneRepMax,
   movingAverage,
   weeklyCompletion,
@@ -104,5 +105,44 @@ describe("weeklyCompletion", () => {
       planned: 4,
       completed: 0,
     });
+  });
+});
+
+describe("setsBySession", () => {
+  const log = (
+    sessionId: string,
+    performedOn: string,
+    setIndex: number,
+    weightKg: number | null,
+    reps: number,
+    exerciseId = "lat_pulldown",
+  ) => ({
+    sessionId,
+    performedOn,
+    exerciseId,
+    plannedExerciseId: exerciseId,
+    setIndex,
+    weightKg,
+    reps,
+  });
+
+  it("groups sets per session, newest first, with volume and weight change", () => {
+    const result = setsBySession(
+      [
+        log("b", "2026-10-08", 1, 52.5, 9),
+        log("a", "2026-10-01", 0, 50, 10),
+        log("b", "2026-10-08", 0, 52.5, 10),
+        log("c", "2026-10-15", 0, 52.5, 11),
+        log("x", "2026-10-15", 0, 99, 1, "other"),
+      ],
+      "lat_pulldown",
+    );
+    expect(result.map((r) => [r.date, r.change])).toEqual([
+      ["2026-10-15", "same"],
+      ["2026-10-08", "up"],
+      ["2026-10-01", "first"],
+    ]);
+    expect(result[1]!.sets.map((s) => s.setIndex)).toEqual([0, 1]);
+    expect(result[1]!.volumeKg).toBe(52.5 * 19);
   });
 });

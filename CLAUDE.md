@@ -69,7 +69,7 @@ A milestone is done only when `test`, `typecheck` and `lint` are clean. Commit a
 
 - `restAfterSet` (domain) decides rest length: set rest = `rules.restBetweenSetsSec.min`, after an exercise's last set = `restBetweenExercisesSec`, none mid-superset or after the final set. The timer only starts for newly logged sets on today's workout.
 - The rest timer (`src/lib/restTimer.ts`) stores its end timestamp in localStorage and is rendered by `RestTimerBar` in the root layout, so it survives navigation, reloads and screen lock.
-- Weight suggestions: same set index last time (handles RPT), else this session's previous set; suggestions render muted until saved.
+- Weight suggestions come from progressive-overload advice (`src/domain/overload.ts`, `adviseSet`, per set index so RPT works): beat target +1 rep twice in a row at a weight (or +4 once, or the target drops ≥2) → add max(2.5 %, one step); miss by ≥2 twice → drop ~10 %; else repeat. Past sets are judged against their own planned target (`plannedTargetReps`). No history → this session's previous set. Suggestions render muted until saved.
 - Session changes go through `updateSession` (`src/data/sessions.ts`), which creates the row on demand.
 
 ## Sync (M4)

@@ -53,7 +53,13 @@ test("a full phase 3 workout: last time, RPT, rest timer, rest-pause, superset, 
   await expect(page.getByLabel(`${LAT} set 1 last time`)).toHaveText(
     "Last time: 50 kg × 10",
   );
-  await expect(page.getByLabel(`${LAT} set 1 weight in kg`)).toHaveValue("50");
+  // Progressive overload: 10 reps done, only 6 planned now → go heavier.
+  await expect(page.getByLabel(`${LAT} set 1 weight in kg`)).toHaveValue(
+    "52.5",
+  );
+  await expect(page.getByLabel(`${LAT} set 1 advice`)).toContainText(
+    "Today: 52.5 kg (↑ from 50 kg)",
+  );
 
   // Technique explanation.
   await page
