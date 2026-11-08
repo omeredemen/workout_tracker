@@ -18,6 +18,7 @@ import { CardioToggle } from "./CardioToggle";
 import { ErrorMessage, Loading, Screen } from "@/components/ui/Screen";
 import { button, card } from "@/components/ui/styles";
 import { workoutHref } from "@/lib/routes";
+import { WorkoutDurationText } from "@/components/workout/WorkoutDuration";
 
 export function TodayView() {
   const active = useActiveProgram();
@@ -114,7 +115,10 @@ function TodayWithProgram({
           <div className="flex items-start justify-between gap-2">
             <div>
               <h2 className="text-xl font-semibold">{workout.dayName}</h2>
-              <p className="text-muted text-sm">{phase.name}</p>
+              <p className="text-muted text-sm">
+                {phase.name}
+                <WorkoutDurationText session={session} prefix=" · " />
+              </p>
             </div>
             {status !== "planned" && (
               <span

@@ -29,7 +29,11 @@ test("a full phase 3 workout: last time, RPT, rest timer, rest-pause, superset, 
   // Log a set in a past workout (week 1) so "last time" has something to show.
   await page.goto("/workout?date=2026-10-19");
   await saveSet(page, `${LAT} set 1`, "50");
-  await expect(page.getByRole("timer")).toHaveCount(0); // not live, so no rest timer
+  await expect(page.getByRole("timer", { name: "Rest timer" })).toHaveCount(0); // not live, so no rest timer
+  // Filled in on a later day, so no workout clock either.
+  await expect(
+    page.getByRole("timer", { name: "Time in workout" }),
+  ).toHaveCount(0);
 
   await page.goto("/");
   await page.getByRole("link", { name: "Start workout" }).click();
@@ -71,13 +75,20 @@ test("a full phase 3 workout: last time, RPT, rest timer, rest-pause, superset, 
   await expect(page.getByRole("dialog")).toBeHidden();
 
   // Saving a set starts a 2:00 rest; +30s adds time; Skip stops it.
+  await expect(
+    page.getByText("The timer starts with your first set."),
+  ).toBeVisible();
   await saveSet(page, `${LAT} set 1`, "55");
-  const timer = page.getByRole("timer");
+  // ...and starts the workout clock.
+  const clock = page.getByRole("timer", { name: "Time in workout" });
+  await expect(clock).toContainText("0:0");
+  const timer = page.getByRole("timer", { name: "Rest timer" });
   await expect(timer).toContainText("2:00");
   await timer.getByRole("button", { name: "+30s" }).click();
   await expect(timer).toContainText("2:30");
   await page.clock.runFor(150_000);
   await expect(timer).toContainText("Go!");
+  await expect(clock).toContainText("2:3");
   await timer.getByRole("button", { name: "Dismiss" }).click();
   await expect(timer).toHaveCount(0);
 
@@ -90,14 +101,22 @@ test("a full phase 3 workout: last time, RPT, rest timer, rest-pause, superset, 
       .fill(reps);
   }
   await saveSet(page, lateral);
-  await page.getByRole("timer").getByRole("button", { name: "Skip" }).click();
+  await page
+    .getByRole("timer", { name: "Rest timer" })
+    .getByRole("button", { name: "Skip" })
+    .click();
 
   // Superset: no rest after the first exercise, rest after the second.
   await saveSet(page, "Rope Curl set 1", "20");
-  await expect(page.getByRole("timer")).toHaveCount(0);
+  await expect(page.getByRole("timer", { name: "Rest timer" })).toHaveCount(0);
   await saveSet(page, "Straight Bar Pushdown set 1", "25");
-  await expect(page.getByRole("timer")).toContainText("2:00");
-  await page.getByRole("timer").getByRole("button", { name: "Skip" }).click();
+  await expect(page.getByRole("timer", { name: "Rest timer" })).toContainText(
+    "2:00",
+  );
+  await page
+    .getByRole("timer", { name: "Rest timer" })
+    .getByRole("button", { name: "Skip" })
+    .click();
 
   // Swap at the start of the phase: no mid-phase warning.
   await page.getByRole("button", { name: "Swap Seated Cable Row" }).click();
@@ -130,6 +149,19 @@ test("a full phase 3 workout: last time, RPT, rest timer, rest-pause, superset, 
     page.getByRole("heading", { name: "Seated Cable Row" }),
   ).toBeVisible();
   await expect(page.getByText("Swapped from")).toHaveCount(0);
+
+  // Finishing freezes the clock at the workout's length; Today shows it too.
+  page.on("dialog", (d) => void d.accept());
+  await page.goto("/workout?date=2026-12-14");
+  await page.clock.runFor(60_000);
+  await page.getByRole("button", { name: "Finish workout" }).click();
+  const took = page.getByRole("timer", { name: "Workout duration" });
+  await expect(took).toContainText("Workout took");
+  const length = (await took.textContent())!.replace("Workout took", "");
+  await page.clock.runFor(120_000);
+  await expect(took).toHaveText(`Workout took${length}`);
+  await page.goto("/");
+  await expect(page.getByText(`· ${length}`)).toBeVisible();
 });
 
 test("cardio can be ticked on rest days, and a workout can be skipped", async ({

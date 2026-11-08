@@ -43,6 +43,7 @@ export function RestTimerBar() {
   return (
     <div
       role="timer"
+      aria-label="Rest timer"
       aria-live={done ? "assertive" : "off"}
       className={`fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 mx-auto max-w-md px-3 pb-2`}
     >

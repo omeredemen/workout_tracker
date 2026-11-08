@@ -28,6 +28,7 @@ import { Sheet } from "@/components/ui/Sheet";
 import { button, card } from "@/components/ui/styles";
 import { ExerciseCard, type ExplainKey } from "./ExerciseCard";
 import { SwapSheet } from "./SwapSheet";
+import { WorkoutClock } from "./WorkoutDuration";
 import type { SaveSet } from "./types";
 
 const RIR_EXPLANATION = {
@@ -283,6 +284,18 @@ function ProgramWorkout({
           Couldn&apos;t save: {error.message}
         </p>
       )}
+      <WorkoutClock
+        session={session}
+        canStart={
+          date === today && (status === "planned" || status === "skipped")
+        }
+        onStart={() =>
+          void updateSession(repo, enrollment.id, day, startedStatus).catch(
+            (e: unknown) =>
+              setError(e instanceof Error ? e : new Error(String(e))),
+          )
+        }
+      />
       {status === "skipped" && (
         <p className="border-border text-muted rounded-2xl border p-3 text-sm">
           You skipped this workout. Logging a set un-skips it.
