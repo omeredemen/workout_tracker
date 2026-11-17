@@ -183,4 +183,20 @@ test("cardio can be ticked on rest days, and a workout can be skipped", async ({
   await page.goto("/calendar");
   await expect(page.getByLabel("Thursday 17 December, Skipped")).toBeVisible();
   await expect(page.getByLabel("Wednesday 16 December, Rest")).toBeVisible();
+
+  // The skipped workout can still be done on a later day, with the clock and rest timer.
+  await page.clock.setSystemTime(new Date("2026-12-18T10:00:00"));
+  await page.goto("/workout?date=2026-12-17");
+  await expect(
+    page.getByText("Doing this workout now? Start the timer."),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Start now" }).click();
+  await expect(
+    page.getByRole("timer", { name: "Time in workout" }),
+  ).toContainText("0:0");
+  await page
+    .getByRole("button", { name: /^Save .* set 1$/ })
+    .first()
+    .click();
+  await expect(page.getByRole("timer", { name: "Rest timer" })).toBeVisible();
 });

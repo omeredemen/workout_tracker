@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   formatDuration,
+  isRunning,
   workoutDurationMs,
   type TimedSession,
 } from "../duration";
@@ -34,13 +35,24 @@ describe("workoutDurationMs", () => {
     );
   });
 
-  it("ignores workouts filled in on a later day", () => {
+  it("times a skipped workout done on a later day", () => {
     const s = session({
       status: "completed",
-      startedAt: at(9, 0, 10),
-      finishedAt: at(9, 5, 10),
+      startedAt: at(9, 0, 11),
+      finishedAt: at(9, 50, 11),
     });
-    expect(workoutDurationMs(s, new Date(2026, 10, 10, 10, 0))).toBe(null);
+    expect(workoutDurationMs(s, new Date(2026, 10, 11, 10, 0))).toBe(
+      50 * 60_000,
+    );
+    const running = session({ startedAt: at(9, 0, 11) });
+    expect(workoutDurationMs(running, new Date(2026, 10, 11, 9, 20))).toBe(
+      20 * 60_000,
+    );
+  });
+
+  it("ignores a finish on a later day than the start (forgotten Finish)", () => {
+    const s = session({ status: "completed", finishedAt: at(8, 0, 10) });
+    expect(workoutDurationMs(s, new Date(2026, 10, 12))).toBe(null);
   });
 
   it("is null when not started, skipped, or planned", () => {
@@ -54,6 +66,19 @@ describe("workoutDurationMs", () => {
     expect(workoutDurationMs(session({}), new Date(2026, 10, 9, 17, 0))).toBe(
       0,
     );
+  });
+});
+
+describe("isRunning", () => {
+  it("is true only for a workout in progress that started today", () => {
+    const now = new Date(2026, 10, 9, 18, 30);
+    expect(isRunning(session({}), now)).toBe(true);
+    expect(isRunning(session({}), new Date(2026, 10, 10, 9, 0))).toBe(false);
+    expect(isRunning(session({ startedAt: null }), now)).toBe(false);
+    expect(
+      isRunning(session({ status: "completed", finishedAt: at(19, 0) }), now),
+    ).toBe(false);
+    expect(isRunning(null, now)).toBe(false);
   });
 });
 

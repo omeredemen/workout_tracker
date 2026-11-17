@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
+import { bodyweightOn } from "@/domain/calories";
+import { isRunning } from "@/domain/duration";
 import { findExercise } from "@/domain/library";
 import { adviseSet, plannedTargetReps, weightStepKg } from "@/domain/overload";
 import { previousPerformance } from "@/domain/previousPerformance";
@@ -18,7 +20,7 @@ import {
 import { newId } from "@/data/ids";
 import type { Repository } from "@/data/repository";
 import { useRepository } from "@/data/RepositoryProvider";
-import { startedStatus, updateSession } from "@/data/sessions";
+import { startNow, startedStatus, updateSession } from "@/data/sessions";
 import { formatLongDate } from "@/lib/format";
 import { restTimer } from "@/lib/restTimer";
 import { fromDisplay, useUnits } from "@/lib/units";
@@ -77,6 +79,7 @@ function ProgramWorkout({
           session,
           logs: session ? await r.listSetLogs(session.id) : [],
           swaps: await r.listSwaps(enrollment.id),
+          metrics: await r.listBodyMetrics(),
         };
       },
       [enrollment.id, date],
@@ -123,7 +126,7 @@ function ProgramWorkout({
   if (data.status === "error") return <ErrorMessage error={data.error} />;
   if (history.status === "error") return <ErrorMessage error={history.error} />;
 
-  const { session, logs } = data.data;
+  const { session, logs, metrics } = data.data;
   const phase = program.phases.find((p) => p.id === day.phaseId)!;
 
   if (!workout) {
@@ -160,8 +163,15 @@ function ProgramWorkout({
   const saveSet: SaveSet = async (exercise, setIndex, values) => {
     setError(null);
     const isNew = !logFor(exercise, setIndex);
+    // Live: today's workout, or another day's workout started with "Start now".
+    const live = date === today || isRunning(session, new Date());
     try {
-      const s = await updateSession(repo, enrollment.id, day, startedStatus);
+      const s = await updateSession(
+        repo,
+        enrollment.id,
+        day,
+        startedStatus(live),
+      );
       await repo.saveSetLog({
         id: logFor(exercise, setIndex)?.id ?? newId(),
         sessionId: s.id,
@@ -176,7 +186,7 @@ function ProgramWorkout({
       throw e;
     }
     // Rest only when logging live, not when filling in or correcting sets afterwards.
-    if (isNew && date === today) {
+    if (isNew && live) {
       const rest = restAfterSet(
         workout,
         exercise.plannedExerciseId,
@@ -286,11 +296,10 @@ function ProgramWorkout({
       )}
       <WorkoutClock
         session={session}
-        canStart={
-          date === today && (status === "planned" || status === "skipped")
-        }
+        isToday={date === today}
+        bodyweightKg={bodyweightOn(metrics, date)}
         onStart={() =>
-          void updateSession(repo, enrollment.id, day, startedStatus).catch(
+          void updateSession(repo, enrollment.id, day, startNow).catch(
             (e: unknown) =>
               setError(e instanceof Error ? e : new Error(String(e))),
           )

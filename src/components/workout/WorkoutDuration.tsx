@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { estimateWorkoutKcal } from "@/domain/calories";
 import {
   formatDuration,
   workoutDurationMs,
@@ -24,36 +26,44 @@ function useNow(running: boolean): Date {
   return now;
 }
 
+/** Elapsed workout time in ms, live while in progress; null when unknown. */
+function useWorkoutMs(session: TimedSession | null | undefined): number | null {
+  const now = useNow(session?.status === "in_progress");
+  return session ? workoutDurationMs(session, now) : null;
+}
+
 /** Elapsed workout time ("52:10"), live while in progress; null when unknown. */
 export function useWorkoutDuration(
   session: TimedSession | null | undefined,
 ): string | null {
-  const now = useNow(session?.status === "in_progress");
-  if (!session) return null;
-  const ms = workoutDurationMs(session, now);
+  const ms = useWorkoutMs(session);
   return ms === null ? null : formatDuration(ms);
 }
 
-/** Sticky workout clock at the top of the workout page. */
+/** Sticky workout clock at the top of the workout page, with a calorie estimate. */
 export function WorkoutClock({
   session,
-  canStart,
+  isToday,
+  bodyweightKg,
   onStart,
 }: {
   session: TimedSession | null | undefined;
-  /** Show a start button (today's workout, not started yet). */
-  canStart: boolean;
+  /** The workout is planned for today (its first set starts the clock by itself). */
+  isToday: boolean;
+  bodyweightKg: number | null;
   onStart: () => void;
 }) {
-  const duration = useWorkoutDuration(session);
+  const ms = useWorkoutMs(session);
   const completed = session?.status === "completed";
 
-  if (duration === null) {
-    if (!canStart) return null;
+  if (ms === null) {
+    if (completed) return null;
     return (
       <div className="border-border bg-surface flex items-center justify-between gap-3 rounded-2xl border px-4 py-2">
         <p className="text-muted text-sm">
-          The timer starts with your first set.
+          {isToday
+            ? "The timer starts with your first set."
+            : "Doing this workout now? Start the timer."}
         </p>
         <button
           type="button"
@@ -66,16 +76,35 @@ export function WorkoutClock({
     );
   }
 
+  const kcal = estimateWorkoutKcal(ms, bodyweightKg);
   return (
     <div
       role="timer"
       aria-label={completed ? "Workout duration" : "Time in workout"}
-      className="border-border bg-surface sticky top-[env(safe-area-inset-top)] z-10 flex items-baseline justify-between gap-3 rounded-2xl border px-4 py-2 shadow-sm"
+      className="border-border bg-surface sticky top-[env(safe-area-inset-top)] z-10 flex items-center justify-between gap-3 rounded-2xl border px-4 py-2 shadow-sm"
     >
-      <span className="text-muted text-sm font-medium">
-        {completed ? "Workout took" : "Workout time"}
+      <div className="min-w-0">
+        <p className="text-muted text-sm font-medium">
+          {completed ? "Workout took" : "Workout time"}
+        </p>
+        {kcal !== null ? (
+          <p
+            className="text-muted text-xs tabular-nums"
+            aria-label={`About ${kcal} kilocalories burned`}
+          >
+            ≈ {kcal} kcal burned
+          </p>
+        ) : (
+          completed && (
+            <Link href="/progress" className="text-muted text-xs underline">
+              Log your bodyweight to estimate calories
+            </Link>
+          )
+        )}
+      </div>
+      <span className="text-2xl font-bold tabular-nums">
+        {formatDuration(ms)}
       </span>
-      <span className="text-2xl font-bold tabular-nums">{duration}</span>
     </div>
   );
 }

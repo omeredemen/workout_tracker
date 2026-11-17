@@ -27,10 +27,27 @@ export async function updateSession(
   return repo.saveSession({ ...base, ...change(base) });
 }
 
-/** Logging a set (re)starts the workout unless it's already finished. */
-export function startedStatus(session: Draft<SessionRecord>): Partial<Draft<SessionRecord>> {
-  const notStarted: SessionStatus[] = ["planned", "skipped"];
-  return notStarted.includes(session.status)
-    ? { status: "in_progress", startedAt: session.startedAt ?? new Date().toISOString() }
-    : {};
+/**
+ * Logging a set (re)starts the workout unless it's already finished. Only a live set
+ * (today's workout, or one started with "Start now") starts the clock; sets filled in
+ * afterwards leave `startedAt` empty so they don't time the typing.
+ */
+export function startedStatus(live: boolean) {
+  return (session: Draft<SessionRecord>): Partial<Draft<SessionRecord>> => {
+    const notStarted: SessionStatus[] = ["planned", "skipped"];
+    if (!notStarted.includes(session.status)) return {};
+    return {
+      status: "in_progress",
+      startedAt: live ? (session.startedAt ?? new Date().toISOString()) : session.startedAt,
+    };
+  };
+}
+
+/** "Start now": the workout is being done right now, whatever day it's planned for. */
+export function startNow(): Partial<Draft<SessionRecord>> {
+  return {
+    status: "in_progress",
+    startedAt: new Date().toISOString(),
+    finishedAt: null,
+  };
 }

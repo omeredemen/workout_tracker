@@ -12,9 +12,11 @@ export interface TimedSession {
 /**
  * How long the workout took (or has taken so far), in ms; null when it can't be told.
  *
- * Only counts a workout started on its own day: sets filled in on a later day would
- * otherwise show the time spent typing them in. A running workout only counts on that
- * day, so a forgotten "Finish" doesn't show a clock running for days.
+ * The clock is the real time between start and finish, wherever the workout sits on
+ * the calendar, so a skipped day done later is timed too. Sets filled in afterwards
+ * never set `startedAt` (see `startedStatus`), so they show no duration. A start and
+ * finish on different days (a forgotten "Finish") counts as unknown, and a running
+ * clock stops at the end of the day it started.
  */
 export function workoutDurationMs(
   session: TimedSession,
@@ -23,19 +25,26 @@ export function workoutDurationMs(
   if (!session.startedAt) return null;
   const started = new Date(session.startedAt);
   if (Number.isNaN(started.getTime())) return null;
-  if (toIsoDate(started) !== session.date) return null;
 
   let end: Date;
   if (session.status === "completed" && session.finishedAt) {
     end = new Date(session.finishedAt);
     if (Number.isNaN(end.getTime())) return null;
   } else if (session.status === "in_progress") {
-    if (toIsoDate(now) !== session.date) return null;
     end = now;
   } else {
     return null;
   }
+  if (toIsoDate(end) !== toIsoDate(started)) return null;
   return Math.max(0, end.getTime() - started.getTime());
+}
+
+/** True while the workout is being done right now (started today and not finished). */
+export function isRunning(session: TimedSession | null | undefined, now: Date) {
+  return (
+    session?.status === "in_progress" &&
+    workoutDurationMs(session, now) !== null
+  );
 }
 
 /** "4:07", "52:10", "1:05:09". */
